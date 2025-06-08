@@ -1,0 +1,7 @@
+Flask
+Flask[async]
+Flask-Login
+Flask-SQLAlchemy
+python-dotenv
+httpx
+Werkzeug

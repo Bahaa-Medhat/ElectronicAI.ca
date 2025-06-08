@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat History - ElectronicAI.ca</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <h1>Chat History</h1>
+        <p>Your past conversations with ElectronicAI</p>
+    </header>
+
+    <main>
+        <section class="history-wrapper">
+            <a href="/" class="back-button">← Back to Chat</a>
+
+            {% if messages %}
+            {% for message in messages %}
+            <div class="history-message {{ message.role }}">
+                <div><strong>{{ message.role | capitalize }}:</strong> {{ message.message }}</div>
+                <div class="message-meta">Message ID: {{ message.id }}</div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p class="no-messages">No chat history found.</p>
+            {% endif %}
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 ElectronicAI.ca. All rights reserved.</p>
+    </footer>
+</body>
+
+</html>
