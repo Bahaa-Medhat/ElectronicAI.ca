@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 
 <body class="bg-light">
@@ -75,10 +76,14 @@
             const messageDiv = document.createElement('div');
             if (sender === 'user') {
                 messageDiv.className = 'alert alert-primary align-self-end user-message mb-2';
+                messageDiv.textContent = message;
             } else {
                 messageDiv.className = 'alert alert-info align-self-start ai-message mb-2';
+                const span = document.createElement('span');
+                span.className = 'markdown-content';
+                span.innerHTML = marked.parse(message);
+                messageDiv.appendChild(span);
             }
-            messageDiv.textContent = message;
             chatHistory.appendChild(messageDiv);
             chatHistory.scrollTop = chatHistory.scrollHeight;
         }

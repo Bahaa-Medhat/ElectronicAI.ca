@@ -33,6 +33,7 @@ class ChatMessage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     role = db.Column(db.String(10))
     message = db.Column(db.Text)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
 #--- User Loader ---#
 @login_manager.user_loader
@@ -82,8 +83,16 @@ def index():
 @app.route('/history')
 @login_required
 def history():
-    messages = ChatMessage.query.all()
+    messages = ChatMessage.query.filter_by(user_id=current_user.id).all()
     return render_template('history.html', messages=messages)
+
+@app.route('/clear_history', methods=['POST'])
+@login_required
+def clear_history():
+    ChatMessage.query.filter_by(user_id=current_user.id).delete()
+    db.session.commit()
+    flash('Chat history cleared.', 'success')
+    return redirect(url_for('history'))
 
 #--- Chat Route ---#
 @app.route('/chat', methods=['POST'])
@@ -92,7 +101,7 @@ async def chat():
     user_message = request.json.get('message')
     print(f"User message received: {user_message}")
 
-    user_entry = ChatMessage(role='user', message=user_message)
+    user_entry = ChatMessage(role='user', message=user_message, user_id=current_user.id)
     db.session.add(user_entry)
 
     chat_history = []
@@ -135,7 +144,7 @@ async def chat():
         print(f"An unexpected error occurred during AI response generation: {e}")
         ai_response = "An internal error occurred while processing your request."
 
-    ai_entry = ChatMessage(role='ai', message=ai_response)
+    ai_entry = ChatMessage(role='ai', message=ai_response, user_id=current_user.id)
     db.session.add(ai_entry)
     db.session.commit()
     return jsonify({'response': ai_response})
