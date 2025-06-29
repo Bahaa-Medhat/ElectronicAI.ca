@@ -149,6 +149,100 @@ async def chat():
     db.session.commit()
     return jsonify({'response': ai_response})
 
+#--- Browse Component Route ---#
+def get_nexar_token():
+    import requests
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    data = {
+        "grant_type": "client_credentials",
+        "client_id": os.getenv("NEXAR_CLIENT_ID"),
+        "client_secret": os.getenv("NEXAR_CLIENT_SECRET"),
+        "audience": "https://api.nexar.com/graphql"
+    }
+
+    res = requests.post("https://identity.nexar.com/connect/token", data=data)
+    return res.json().get("access_token")
+
+@app.route('/component_info')
+def component_info():
+    import requests
+
+    part_name = request.args.get('q')
+    if not part_name:
+        return jsonify({"error": "Missing component query"}), 400
+
+    try:
+        def get_nexar_token():
+            from dotenv import load_dotenv
+            load_dotenv()
+
+            data = {
+                "grant_type": "client_credentials",
+                "client_id": os.getenv("NEXAR_CLIENT_ID"),
+                "client_secret": os.getenv("NEXAR_CLIENT_SECRET"),
+                "audience": "https://api.nexar.com/graphql"
+            }
+
+            res = requests.post("https://identity.nexar.com/connect/token", data=data)
+            return res.json().get("access_token")
+
+        token = get_nexar_token()
+
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json"
+        }
+
+        query = """
+        query($q: String!) {
+          supSearch(q: $q, limit: 1) {
+            results {
+              part {
+                mpn
+                manufacturer {
+                  name
+                }
+                shortDescription
+                images {
+                  url
+                }
+              }
+            }
+          }
+        }
+        """
+
+        response = requests.post(
+            "https://api.nexar.com/graphql",
+            headers=headers,
+            json={"query": query, "variables": {"q": part_name}}
+        )
+
+        response.raise_for_status()
+
+        data = response.json()
+        results = data.get("data", {}).get("supSearch", {}).get("results", [])
+
+        if not results:
+            return jsonify({"error": "No components found"}), 404
+
+        part = results[0]["part"]
+        image_url = part.get("images", [{}])[0].get("url", "")
+        name = part.get("mpn") or part.get("manufacturer", {}).get("name", part_name)
+
+        return jsonify({
+            "name": name,
+            "manufacturer": part.get("manufacturer", {}).get("name"),
+            "description": part.get("shortDescription"),
+            "image": image_url,
+            "datasheet": "Not available in this query"
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 #--- Main Entry Point ---#
 if __name__ == '__main__':
     app.run(debug=True)
