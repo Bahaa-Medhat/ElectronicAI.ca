@@ -1,6 +1,6 @@
 # ElectronicAI.ca
 
-A Flask-based web application that allows users to register, log in, and chat with an AI powered by the Google Gemini API. All chat history is stored in a local SQLite database.
+A Flask-based web application that allows users to register, log in, chat with an AI powered by the Google Gemini API, and search for electronic components using the Nexar API. All chat history is stored in a local SQLite database.
 
 ## Features
 
@@ -8,13 +8,16 @@ A Flask-based web application that allows users to register, log in, and chat wi
 - Secure password hashing (Werkzeug)
 - Chat interface with AI responses (Google Gemini API)
 - Chat history stored in SQLite (SQLAlchemy)
-- Asynchronous API calls for fast AI responses
+- Asynchronous API calls for fast AI responses (httpx)
+- Electronic component search via Nexar API
+- Environment variable support via python-dotenv
 
 ## Requirements
 
 - Python 3.8+
 - [pip](https://pip.pypa.io/en/stable/)
 - Google Gemini API key
+- Nexar API credentials
 
 ## Setup
 
@@ -40,6 +43,8 @@ A Flask-based web application that allows users to register, log in, and chat wi
     ```
     SECRET_KEY=your_secret_key
     GEMINI_API_KEY=your_gemini_api_key
+    NEXAR_CLIENT_ID=your_nexar_client_id
+    NEXAR_CLIENT_SECRET=your_nexar_client_secret
     ```
 
 5. **Initialize the database:**
@@ -66,6 +71,7 @@ A Flask-based web application that allows users to register, log in, and chat wi
 - Log in with your credentials.
 - Start chatting with the AI!
 - View your chat history on the `/history` page.
+- Search for electronic components in the Browse Components section.
 
 ## Technologies Used
 
@@ -73,7 +79,10 @@ A Flask-based web application that allows users to register, log in, and chat wi
 - Flask-Login
 - Flask-SQLAlchemy
 - httpx (for async API calls)
+- requests (for Nexar API)
+- python-dotenv
 - Google Gemini API
+- Nexar API
 
 ## License
 
@@ -82,4 +91,4 @@ This project is licensed under the MIT License.
 ---
 
 **Note:**  
-You must have a valid Google Gemini API key to use the chat functionality.
+You must have valid Google Gemini and Nexar API credentials to use all features.
