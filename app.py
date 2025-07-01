@@ -62,7 +62,7 @@ def login():
         user = User.query.filter_by(email=email).first()
         if user and check_password_hash(user.password, password):
             login_user(user)
-            return render_template('index.html')
+            return redirect('/')
         flash('Login failed. Check email and password.')
     return render_template('login.html')
 

@@ -34,7 +34,7 @@
         <main class="flex-grow-1 container">
             <div class="row">
                 <div class="col-md-7">
-                    <section class="card shadow w-100 mb-4">
+                    <section class="card panel shadow w-100 mb-4">
                         <div class="card-header bg-primary text-white">
                             <h6 class="mb-0">Chat</h6>
                         </div>
@@ -58,13 +58,22 @@
                 </div>
 
                 <div class="col-md-5">
-                    <section class="card shadow w-100 mb-4">
+                    <section class="card panel shadow w-100 mb-4 h-50">
                         <div class="card-header bg-primary text-white">
                             <h6 class="mb-0">Browse Components</h6>
                         </div>
                         <div class="card-body">
                             <input type="text" id="componentSearch" class="form-control mb-3" placeholder="Search components...">
-                            <div id="componentList" class="row" style="max-height: 400px; overflow-y: auto;"></div>
+                            <div id="componentList" class="row" style="max-height: 150px; overflow-y: auto;"></div>
+                        </div>
+                    </section>
+
+                    <section class="card panel shadow w-100 mb-4 text-center">
+                        <div class="card-body d-flex justify-content-center" style="background: transparent; max-height: 200px;">
+                            <img src="{{ url_for('static', filename='assets/arduino.png') }}"
+                                 alt="3D model of Arduino Uno"
+                                 style="width: 100%; max-width: 500px; height: 200px; background: transparent;">
+                            </img>
                         </div>
                     </section>
                 </div>
@@ -188,5 +197,6 @@
         }
     });
     </script>
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 </body>
 </html>
