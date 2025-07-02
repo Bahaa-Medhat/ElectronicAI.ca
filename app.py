@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_file
 import json
 import os 
 from dotenv import load_dotenv
@@ -8,6 +8,7 @@ from flask_login import LoginManager
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required, current_user
+from io import BytesIO
 
 load_dotenv()  
 
@@ -34,6 +35,14 @@ class ChatMessage(db.Model):
     role = db.Column(db.String(10))
     message = db.Column(db.Text)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+class SavedResponse(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    title = db.Column(db.String(255), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    updated_at = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
 #--- User Loader ---#
 @login_manager.user_loader
@@ -243,6 +252,123 @@ def component_info():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+#--- Save Response Route ---#
+@app.route('/saved_responses')
+@login_required
+def saved_responses():
+    user_saved_responses = SavedResponse.query.filter_by(user_id=current_user.id).order_by(SavedResponse.updated_at.desc()).all()
+    return render_template('saved_responses.html', saved_responses=user_saved_responses)
+
+@app.route('/update_response/<int:response_id>', methods=['POST'])
+@login_required
+def update_response(response_id):
+    try:
+        response_to_update = SavedResponse.query.get_or_404(response_id)
+
+        # Ensure the current user owns this response
+        if response_to_update.user_id != current_user.id:
+            return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+
+        data = request.get_json()
+        new_content = data.get('content')
+
+        if not new_content:
+            return jsonify({'success': False, 'message': 'Content cannot be empty.'}), 400
+
+        response_to_update.content = new_content
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Response updated successfully!'}), 200
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error updating response: {e}")
+        return jsonify({'success': False, 'message': f'Error updating response: {str(e)}'}), 500
+
+@app.route('/delete_response/<int:response_id>', methods=['POST'])
+@login_required
+def delete_response(response_id):
+    try:
+        response_to_delete = SavedResponse.query.get_or_404(response_id)
+
+        # Ensure the current user owns this response
+        if response_to_delete.user_id != current_user.id:
+            return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+
+        db.session.delete(response_to_delete)
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Response deleted successfully!'}), 200
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error deleting response: {e}")
+        return jsonify({'success': False, 'message': f'Error deleting response: {str(e)}'}), 500
+
+@app.route('/download_pdf/<int:response_id>', methods=['POST'])
+@login_required
+def download_pdf(response_id):
+    # This route will receive the *current edited content* from the frontend,
+    # not necessarily just what's in the database. This allows users to download
+    # immediate edits without saving first.
+    content_to_pdf = request.form.get('content')
+    title_for_pdf = request.form.get('title', f"ElectronicAI_Response_{response_id}")
+
+    if not content_to_pdf:
+        flash("Could not generate PDF: content missing.", "danger")
+        return redirect(url_for('saved_responses'))
+
+    try:
+        import pdfkit
+        wkhtmltopdf_path = os.getenv('WKHTMLTOPDF_PATH')
+        if not wkhtmltopdf_path:
+            flash("wkhtmltopdf path not set. Please set WKHTMLTOPDF_PATH in your .env file.", "danger")
+            return redirect(url_for('saved_responses'))
+
+        # Define PDF options here
+        options = {
+            'encoding': 'UTF-8',
+            'enable-local-file-access': None
+        }
+
+        config = pdfkit.configuration(wkhtmltopdf=wkhtmltopdf_path)
+        pdf = pdfkit.from_string(content_to_pdf, False, options=options, configuration=config)
+
+        response = send_file(
+            BytesIO(pdf),
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name=f"{title_for_pdf.replace(' ', '_')}.pdf"
+        )
+        return response
+
+    except ImportError:
+        flash("PDF generation library (pdfkit) not installed. Please install it (`pip install pdfkit`) and wkhtmltopdf.", "danger")
+        print("PDF generation library (pdfkit) not found. Please install it and wkhtmltopdf.")
+        return redirect(url_for('saved_responses'))
+    except Exception as e:
+        flash(f"Error generating PDF: {str(e)}", "danger")
+        print(f"Error generating PDF: {e}")
+        return redirect(url_for('saved_responses'))
+
+@app.route('/save_response', methods=['POST'])
+@login_required
+def save_response():
+    data = request.get_json()
+    title = data.get('title')
+    content = data.get('content')
+    if not title or not content:
+        return jsonify({'message': 'Title and content are required.'}), 400
+
+    try:
+        new_response = SavedResponse(
+            user_id=current_user.id,
+            title=title,
+            content=content
+        )
+        db.session.add(new_response)
+        db.session.commit()
+        return jsonify({'message': 'Response saved successfully!'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'message': f'Failed to save response: {str(e)}'}), 500
+    
 #--- Main Entry Point ---#
 if __name__ == '__main__':
     app.run(debug=True)

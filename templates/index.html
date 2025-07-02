@@ -26,7 +26,8 @@
             <h1 class="mb-1">ElectronicAI.ca</h1>
             <p class="mb-3">Bridging the Gap Between Electronics and Artificial Intelligence</p>
             <div class="d-flex justify-content-center gap-2">
-                <a href="/history" class="btn btn-secondary">View History</a>
+                <a href="/history" class="btn btn-secondary">View Chat History</a>
+                <a href="/saved_responses" class="btn btn-secondary">My Saved Responses</a> {# ADD THIS LINE #}
                 <a href="/logout" class="btn btn-danger">Logout</a>
             </div>
         </header>
@@ -43,6 +44,7 @@
                             <div class="flex-grow-1 overflow-auto mb-3" id="chat-history" style="max-height: 350px;">
                                 <div class="alert alert-info mb-2 ai-message">
                                     Hello! I'm your ElectronicAI assistant. Ask me anything about the exciting world where electronics meets artificial intelligence.
+                                    <button class="btn btn-sm btn-outline-secondary float-end save-ai-response-btn" data-bs-toggle="modal" data-bs-target="#saveResponseModal" style="display:none;">Save</button>
                                 </div>
                             </div>
                             <div class="align-items-center mb-3" id="typing-indicator" style="display: none;">
@@ -80,11 +82,37 @@
             </div>
         </main>
 
-
         <footer class="mt-auto py-3 text-center bg-dark text-white rounded-top">
             <p class="mb-0">&copy; 2025 ElectronicAI.ca. All rights reserved.</p>
         </footer>
     </div>
+
+    <div class="modal fade" id="saveResponseModal" tabindex="-1" aria-labelledby="saveResponseModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">                        
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="saveResponseModalLabel">Save AI Response</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                    
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="responseTitle" class="form-label">Title for this response:</label>
+                        <input type="text" class="form-control" id="responseTitle" placeholder="e.g., Explanation of Embedded AI" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="responseContent" class="form-label">Content (editable):</label>
+                        <div id="responseContent" class="form-control" contenteditable="true" style="min-height: 150px; overflow-y: auto;"></div>
+                    </div>                    
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="confirmSaveResponseBtn">Save Response</button>
+                </div>
+            </div>
+        </div>
 
     <script>
         const chatHistory = document.getElementById('chat-history');
@@ -108,12 +136,63 @@
                 messageDiv.className = 'alert alert-info align-self-start ai-message mb-2';
                 const span = document.createElement('span');
                 span.className = 'markdown-content';
-                span.innerHTML = marked.parse(message);
+                span.innerHTML = marked.parse(message); // Parse Markdown here
                 messageDiv.appendChild(span);
+
+                // Add Save button for AI messages
+                const saveButton = document.createElement('button');
+                saveButton.className = 'btn btn-sm btn-outline-secondary float-end save-ai-response-btn';
+                saveButton.textContent = 'Save';
+                saveButton.setAttribute('data-bs-toggle', 'modal');
+                saveButton.setAttribute('data-bs-target', '#saveResponseModal');
+                saveButton.onclick = function() {
+                    const modalResponseContent = document.getElementById('responseContent');
+                    // Use innerHTML because marked.parse returns HTML
+                    modalResponseContent.innerHTML = span.innerHTML; // Pre-fill with AI response
+                    document.getElementById('responseTitle').value = ''; // Clear previous title
+                };
+                messageDiv.appendChild(saveButton);
             }
             chatHistory.appendChild(messageDiv);
             chatHistory.scrollTop = chatHistory.scrollHeight;
         }
+
+        const confirmSaveResponseBtn = document.getElementById('confirmSaveResponseBtn');
+        confirmSaveResponseBtn.addEventListener('click', async () => {
+            const title = document.getElementById('responseTitle').value.trim();
+            const content = document.getElementById('responseContent').innerHTML.trim(); // Get HTML content
+
+            if (!title) {
+                alert('Please provide a title for your response.');
+                return;
+            }
+            if (!content) {
+                alert('Content cannot be empty.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/save_response', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ title: title, content: content })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                alert(result.message); // Show success/error message
+                const saveResponseModal = bootstrap.Modal.getInstance(document.getElementById('saveResponseModal'));
+                saveResponseModal.hide(); // Hide the modal after saving
+            } catch (error) {
+                console.error('Error saving response:', error);
+                alert('Failed to save response. Please try again.');
+            }
+        });
 
         document.addEventListener('DOMContentLoaded', function () {
             showTypingIndicator(false);

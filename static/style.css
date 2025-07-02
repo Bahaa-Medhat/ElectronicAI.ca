@@ -6,7 +6,6 @@ body, .bg-light {
     background: linear-gradient(135deg, #001F3F 0%, #000000 100%) !important;
     font-family: 'Orbitron', 'Inter', Arial, sans-serif !important;
     color: #00FFFF !important;
-    overflow: hidden;
 }
 
 header.bg-primary, .card-header.bg-primary {
@@ -51,6 +50,11 @@ input::placeholder,
     transition: transform 0.3s;
     perspective: 800px;
     transform-style: preserve-3d;
+}
+
+.container {
+    border: transparent !important;
+    box-shadow: none !important;
 }
 .card:hover {
     transform: rotateY(2deg) scale(1.01);
