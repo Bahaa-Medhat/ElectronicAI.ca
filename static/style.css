@@ -108,6 +108,60 @@ input::placeholder,
     font-family: 'Orbitron', 'Inter', Arial, sans-serif !important;
 }
 
+.accordion-item {
+    background: rgba(0,0,0,0.96) !important;
+    border: 2px solid #00ffffcc !important;
+    border-radius: 18px !important;
+    box-shadow: 0 0 24px 6px #00ffff55, 0 2px 8px 0 #000;
+    margin-bottom: 1.2rem;
+    font-family: 'Orbitron', 'Inter', Arial, sans-serif !important;
+    color: #00FFFF !important;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+.accordion-item:hover {
+    transform: scale(1.01) rotateY(1deg);
+    box-shadow: 0 0 32px 8px #00FFFF99;
+}
+.accordion-button {
+    background: linear-gradient(135deg, rgba(0,255,255,0.15), rgba(0,0,0,0.9)) !important;
+    color: #00FFFF !important;
+    font-family: 'Orbitron', 'Inter', Arial, sans-serif !important;
+    border: none !important;
+    border-radius: 18px 18px 0 0 !important;
+    box-shadow: 0 0 12px 2px #00FFFF33;
+    text-shadow: 0 0 8px #00FFFF;
+    letter-spacing: 1px;
+}
+.accordion-button:not(.collapsed) {
+    background: linear-gradient(135deg, #00FFFF22 0%, #001F3F 100%) !important;
+    color: #00FFFF !important;
+    box-shadow: 0 0 24px 6px #00FFFF55;
+}
+.accordion-body {
+    background: rgba(0,0,0,0.92) !important;
+    color: #00FFFF !important;
+    border-radius: 0 0 18px 18px !important;
+    border-top: 2px solid #00FFFF55 !important;
+    box-shadow: 0 0 12px 2px #00FFFF33;
+    font-family: 'Orbitron', 'Inter', Arial, sans-serif !important;
+}
+.editable-content {
+    background: rgba(0,255,255,0.04) !important;
+    border: 2px solid #00FFFF !important;
+    color: #00FFFF !important;
+    border-radius: 10px !important;
+    box-shadow: 0 0 8px 2px #00FFFF33;
+    font-family: 'Orbitron', 'Inter', Arial, sans-serif !important;
+    min-height: 120px;
+    margin-bottom: 1rem;
+    transition: box-shadow 0.3s;
+}
+.editable-content:focus {
+    outline: none;
+    box-shadow: 0 0 16px 4px #00FFFF99;
+    background: rgba(0,255,255,0.08) !important;
+}
+
 /* Markdown content in chat and history */
 .markdown-content {
     font-size: 1rem;

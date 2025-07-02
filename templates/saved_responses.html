@@ -33,33 +33,33 @@
                 {% endif %}
             {% endwith %}
 
-            <div class="row align-items-stretch">
+            <div class="accordion" id="responsesAccordion">
                 {% if saved_responses %}
                     {% for response in saved_responses %}
-                    <div class="col-md-6 mb-4 d-flex">
-                        <div class="card shadow h-100 w-100 d-flex flex-column">
-                            <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-                                <h5 class="card-title mb-0">{{ response.title }}</h5>
-                                <small class="text-white-50">{{ response.updated_at.strftime('%Y-%m-%d %H:%M') }}</small>
-                            </div>
-                            <div class="card-body flex-grow-1 d-flex flex-column">
-                                <div id="response-content-{{ response.id }}" class="editable-content flex-grow-1" contenteditable="true" style="min-height: 100px; border: 1px solid #eee; padding: 10px; overflow-y: auto;">
-                                    {{ response.content | safe }} {# Use 'safe' filter to render HTML #}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading-{{ response.id }}">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ response.id }}" aria-expanded="false" aria-controls="collapse-{{ response.id }}">
+                                {{ response.title }}
+                                <small class="ms-3 text-muted">{{ response.updated_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                            </button>
+                        </h2>
+                        <div id="collapse-{{ response.id }}" class="accordion-collapse collapse" aria-labelledby="heading-{{ response.id }}" data-bs-parent="#responsesAccordion">
+                            <div class="accordion-body">
+                                <div id="response-content-{{ response.id }}" class="editable-content mb-3" contenteditable="true" style="min-height: 100px; border: 1px solid #eee; padding: 10px; overflow-y: auto;">
+                                    {{ response.content | safe }}
                                 </div>
-                            </div>
-                            <div class="card-footer d-flex justify-content-end gap-2">
-                                <button class="btn btn-sm btn-success save-changes-btn" data-id="{{ response.id }}">Save Changes</button>
-                                <button class="btn btn-sm btn-info download-pdf-btn" data-id="{{ response.id }}" data-title="{{ response.title }}">Download PDF</button>
-                                <button class="btn btn-sm btn-danger delete-response-btn" data-id="{{ response.id }}">Delete</button>
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button class="btn btn-sm btn-success save-changes-btn" data-id="{{ response.id }}">Save Changes</button>
+                                    <button class="btn btn-sm btn-info download-pdf-btn" data-id="{{ response.id }}" data-title="{{ response.title }}">Download PDF</button>
+                                    <button class="btn btn-sm btn-danger delete-response-btn" data-id="{{ response.id }}">Delete</button>
+                                </div>
                             </div>
                         </div>
                     </div>
                     {% endfor %}
                 {% else %}
-                    <div class="col-12">
-                        <div class="alert alert-info text-center" role="alert">
-                            You haven't saved any responses yet. Start chatting and save some!
-                        </div>
+                    <div class="alert alert-info text-center" role="alert">
+                        You haven't saved any responses yet. Start chatting and save some!
                     </div>
                 {% endif %}
             </div>
