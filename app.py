@@ -103,6 +103,11 @@ def clear_history():
     flash('Chat history cleared.', 'success')
     return redirect(url_for('history'))
 
+@app.route('/calculator')
+@login_required
+def calculator():
+    return render_template('calculator.html')
+
 #--- Chat Route ---#
 @app.route('/chat', methods=['POST'])
 @login_required
