@@ -73,7 +73,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Save Changes button handler
             document.querySelectorAll('.save-changes-btn').forEach(button => {
                 button.addEventListener('click', async (event) => {
                     const responseId = event.target.dataset.id;
@@ -90,10 +89,7 @@
                         const result = await response.json();
                         alert(result.message);
                         if (result.success) {
-                            // Optionally update the updated_at timestamp display
-                            // You might need to refresh the page or update the specific card.
-                            // For simplicity, a full page reload is often used after saves.
-                            location.reload(); // Refresh to show updated timestamp
+                            location.reload();
                         }
                     } catch (error) {
                         console.error('Error saving changes:', error);
@@ -102,19 +98,17 @@
                 });
             });
 
-            // Download PDF button handler
             document.querySelectorAll('.download-pdf-btn').forEach(button => {
                 button.addEventListener('click', async (event) => {
                     const responseId = event.target.dataset.id;
                     const title = event.target.dataset.title;
                     const contentDiv = document.getElementById(`response-content-${responseId}`);
-                    const contentToPrint = contentDiv.innerHTML; // Get the current editable HTML
+                    const contentToPrint = contentDiv.innerHTML;
 
-                    // Create a temporary form to submit the HTML content to the server for PDF generation
                     const form = document.createElement('form');
                     form.method = 'POST';
                     form.action = `/download_pdf/${responseId}`;
-                    form.target = '_blank'; // Open PDF in new tab/window
+                    form.target = '_blank';
 
                     const hiddenFieldContent = document.createElement('input');
                     hiddenFieldContent.type = 'hidden';
@@ -134,7 +128,6 @@
                 });
             });
 
-            // Delete Response button handler
             document.querySelectorAll('.delete-response-btn').forEach(button => {
                 button.addEventListener('click', async (event) => {
                     if (!confirm('Are you sure you want to delete this response?')) {

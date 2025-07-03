@@ -265,7 +265,6 @@ def update_response(response_id):
     try:
         response_to_update = SavedResponse.query.get_or_404(response_id)
 
-        # Ensure the current user owns this response
         if response_to_update.user_id != current_user.id:
             return jsonify({'success': False, 'message': 'Unauthorized'}), 403
 
@@ -289,7 +288,6 @@ def delete_response(response_id):
     try:
         response_to_delete = SavedResponse.query.get_or_404(response_id)
 
-        # Ensure the current user owns this response
         if response_to_delete.user_id != current_user.id:
             return jsonify({'success': False, 'message': 'Unauthorized'}), 403
 
@@ -304,9 +302,6 @@ def delete_response(response_id):
 @app.route('/download_pdf/<int:response_id>', methods=['POST'])
 @login_required
 def download_pdf(response_id):
-    # This route will receive the *current edited content* from the frontend,
-    # not necessarily just what's in the database. This allows users to download
-    # immediate edits without saving first.
     content_to_pdf = request.form.get('content')
     title_for_pdf = request.form.get('title', f"ElectronicAI_Response_{response_id}")
 
@@ -321,7 +316,6 @@ def download_pdf(response_id):
             flash("wkhtmltopdf path not set. Please set WKHTMLTOPDF_PATH in your .env file.", "danger")
             return redirect(url_for('saved_responses'))
 
-        # Define PDF options here
         options = {
             'encoding': 'UTF-8',
             'enable-local-file-access': None
