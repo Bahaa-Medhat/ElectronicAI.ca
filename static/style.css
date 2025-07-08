@@ -1,6 +1,25 @@
 /* === Import Orbitron for Futuristic Look === */
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
 
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+.container-fluid {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+footer {
+    flex-shrink: 0;
+}
+
 /* === 3D Futuristic Neon Theme === */
 body, .bg-light {
     background: linear-gradient(135deg, #001F3F 0%, #000000 100%) !important;
