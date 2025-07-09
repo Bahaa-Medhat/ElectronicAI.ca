@@ -38,13 +38,13 @@
 
         <main class="flex-grow-1 container">
             <div class="row">
-                <div class="col-md-7">
+                <div class="col-md-7 py-4">
                     <section class="card panel shadow w-100 mb-4">
                         <div class="card-header bg-primary text-white">
                             <h6 class="mb-0">Chat</h6>
                         </div>
 
-                        <div class="card-body d-flex flex-column" style="min-height: 500px;">
+                        <div class="card-body d-flex flex-column" style="min-height: 400px;">
                             <div class="flex-grow-1 overflow-auto mb-3" id="chat-history" style="max-height: 350px;">
                                 <div class="alert alert-info mb-2 ai-message">
                                     Hello! I'm your ElectronicAI assistant. Ask me anything about the exciting world
@@ -75,14 +75,13 @@
                         <div class="card-body">
                             <input type="text" id="componentSearch" class="form-control mb-3"
                                 placeholder="Search components...">
-                            <div id="componentList" class="row" style="max-height: 150px; overflow-y: auto;"></div>
+                            <div id="componentList" class="row" style="max-height: 100px; overflow-y: auto;"></div>
                         </div>
                     </section>
 
                     <section class="w-100">
-                        <model-viewer src="{{ url_for('static', filename='/arduino.glb') }}" alt="My 3D Model"
-                            auto-rotate camera-controls shadow-intensity="1" style="width: 100%; height: 300px;">
-                        </model-viewer>
+                        <div id="cesiumContainer"
+                            style="width: 100%; height: 300px; border-radius: 18px; overflow: hidden;"></div>
                     </section>
                 </div>
             </div>
@@ -269,7 +268,7 @@
                         <img src="${compInfo.image}" class="card-img-top p-3" style="height:150px; object-fit:contain;" alt="${compInfo.name}">
                         <div class="card-body">
                             <h6 class="card-title">${compInfo.name}</h6>
-                            <a href="${compInfo.datasheet}" target="_blank" class="btn btn-sm btn-outline-primary">Datasheet</a>
+                            <a href="${compInfo.datasheet}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary">Datasheet</a>
                         </div>
                     </div>
                 </div>`;
@@ -282,6 +281,29 @@
                         renderComponents(e.target.value);
                     });
                 }
+            });
+
+            Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlNmQzM2IzYy1iNmZmLTQzOTAtODI5NC00MzE2MzY1MTdmOGQiLCJpZCI6MjQxODYyLCJpYXQiOjE3MjY0NTk1MjJ9.XhN4UNgKITt-KoENllwyeEe5CCfcr5QZ1L90ToHUt14";
+            const viewer = new Cesium.Viewer('cesiumContainer', {
+                timeline: false,
+                animation: false,
+                baseLayerPicker: false,
+                geocoder: false,
+                homeButton: false,
+                sceneModePicker: false,
+                navigationHelpButton: false,
+                infoBox: false,
+                selectionIndicator: false,
+                fullscreenButton: false,
+                shouldAnimate: true,
+                skyBox: false,
+                skyAtmosphere: false,
+                scene3DOnly: true
+            });
+
+            Cesium.IonResource.fromAssetId(3525673).then(function (resource) {
+                viewer.scene.primitives.add(new Cesium.Cesium3DTileset({ url: resource }));
+                viewer.zoomTo(viewer.scene.primitives);
             });
         </script>
 </body>
