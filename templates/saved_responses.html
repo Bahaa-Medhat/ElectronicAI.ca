@@ -1,158 +1,139 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ElectronicAI.ca - My Saved Responses</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-</head>
-<body class="bg-light">
-    <div class="container-fluid min-vh-100 d-flex flex-column">
-        <header class="py-4 mb-4 bg-primary text-white rounded-bottom shadow-sm text-center">
-            <h1 class="mb-1">My Saved Responses</h1>
-            <p class="mb-3">View, edit, and download your AI responses.</p>
-            <div class="d-flex justify-content-center gap-2">
-                <a href="/" class="btn btn-secondary">Back to Chat</a>
-                <a href="/logout" class="btn btn-danger">Logout</a>
-            </div>
-        </header>
+{% extends "layout.html" %}
 
-        <main class="flex-grow-1 container">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    <div class="alert-container mb-3">
-                        {% for category, message in messages %}
-                            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        {% endfor %}
+{% block title %}My Saved Responses{% endblock %}
+{% block header %}My Saved Responses{% endblock %}
+{% block description %}View, edit, and download your AI responses.{% endblock %}
+
+{% block content %}
+<main class="flex-grow-1 container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alert-container mb-3">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
-                {% endif %}
-            {% endwith %}
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
 
-            <div class="accordion" id="responsesAccordion">
-                {% if saved_responses %}
-                    {% for response in saved_responses %}
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="heading-{{ response.id }}">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ response.id }}" aria-expanded="false" aria-controls="collapse-{{ response.id }}">
-                                {{ response.title }}
-                                <small class="ms-3 text-muted">{{ response.updated_at.strftime('%Y-%m-%d %H:%M') }}</small>
-                            </button>
-                        </h2>
-                        <div id="collapse-{{ response.id }}" class="accordion-collapse collapse" aria-labelledby="heading-{{ response.id }}" data-bs-parent="#responsesAccordion">
-                            <div class="accordion-body">
-                                <div id="response-content-{{ response.id }}" class="editable-content mb-3" contenteditable="true" style="min-height: 100px; border: 1px solid #eee; padding: 10px; overflow-y: auto;">
-                                    {{ response.content | safe }}
-                                </div>
-                                <div class="d-flex justify-content-end gap-2">
-                                    <button class="btn btn-sm btn-success save-changes-btn" data-id="{{ response.id }}">Save Changes</button>
-                                    <button class="btn btn-sm btn-info download-pdf-btn" data-id="{{ response.id }}" data-title="{{ response.title }}">Download PDF</button>
-                                    <button class="btn btn-sm btn-danger delete-response-btn" data-id="{{ response.id }}">Delete</button>
-                                </div>
-                            </div>
+    <div class="accordion" id="responsesAccordion">
+        {% if saved_responses %}
+            {% for response in saved_responses %}
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="heading-{{ response.id }}">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ response.id }}" aria-expanded="false" aria-controls="collapse-{{ response.id }}">
+                        {{ response.title }}
+                        <small class="ms-3 text-muted">{{ response.updated_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                    </button>
+                </h2>
+                <div id="collapse-{{ response.id }}" class="accordion-collapse collapse" aria-labelledby="heading-{{ response.id }}" data-bs-parent="#responsesAccordion">
+                    <div class="accordion-body">
+                        <div id="response-content-{{ response.id }}" class="editable-content mb-3" contenteditable="true" style="min-height: 100px; border: 1px solid #eee; padding: 10px; overflow-y: auto;">
+                            {{ response.content | safe }}
+                        </div>
+                        <div class="d-flex justify-content-end gap-2">
+                            <button class="btn btn-sm btn-success save-changes-btn" data-id="{{ response.id }}">Save Changes</button>
+                            <button class="btn btn-sm btn-info download-pdf-btn" data-id="{{ response.id }}" data-title="{{ response.title }}">Download PDF</button>
+                            <button class="btn btn-sm btn-danger delete-response-btn" data-id="{{ response.id }}">Delete</button>
                         </div>
                     </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="alert alert-info text-center" role="alert">
-                        You haven't saved any responses yet. Start chatting and save some!
-                    </div>
-                {% endif %}
+                </div>
             </div>
-        </main>
-
-        <footer class="mt-auto py-3 text-center bg-dark text-white rounded-top">
-            <p class="mb-0">&copy; 2025 ElectronicAI.ca. All rights reserved.</p>
-        </footer>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-info text-center" role="alert">
+                You haven't saved any responses yet. Start chatting and save some!
+            </div>
+        {% endif %}
     </div>
+</main>
+{% endblock %}
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.save-changes-btn').forEach(button => {
-                button.addEventListener('click', async (event) => {
-                    const responseId = event.target.dataset.id;
-                    const contentDiv = document.getElementById(`response-content-${responseId}`);
-                    const updatedContent = contentDiv.innerHTML.trim();
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.save-changes-btn').forEach(button => {
+            button.addEventListener('click', async (event) => {
+                const responseId = event.target.dataset.id;
+                const contentDiv = document.getElementById(`response-content-${responseId}`);
+                const updatedContent = contentDiv.innerHTML.trim();
 
-                    try {
-                        const response = await fetch(`/update_response/${responseId}`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ content: updatedContent })
-                        });
+                try {
+                    const response = await fetch(`/update_response/${responseId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ content: updatedContent })
+                    });
 
-                        const result = await response.json();
-                        alert(result.message);
-                        if (result.success) {
-                            location.reload();
-                        }
-                    } catch (error) {
-                        console.error('Error saving changes:', error);
-                        alert('Failed to save changes. Please try again.');
+                    const result = await response.json();
+                    alert(result.message);
+                    if (result.success) {
+                        location.reload();
                     }
-                });
-            });
-
-            document.querySelectorAll('.download-pdf-btn').forEach(button => {
-                button.addEventListener('click', async (event) => {
-                    const responseId = event.target.dataset.id;
-                    const title = event.target.dataset.title;
-                    const contentDiv = document.getElementById(`response-content-${responseId}`);
-                    const contentToPrint = contentDiv.innerHTML;
-
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = `/download_pdf/${responseId}`;
-                    form.target = '_blank';
-
-                    const hiddenFieldContent = document.createElement('input');
-                    hiddenFieldContent.type = 'hidden';
-                    hiddenFieldContent.name = 'content';
-                    hiddenFieldContent.value = contentToPrint;
-                    form.appendChild(hiddenFieldContent);
-
-                    const hiddenFieldTitle = document.createElement('input');
-                    hiddenFieldTitle.type = 'hidden';
-                    hiddenFieldTitle.name = 'title';
-                    hiddenFieldTitle.value = title;
-                    form.appendChild(hiddenFieldTitle);
-
-                    document.body.appendChild(form);
-                    form.submit();
-                    document.body.removeChild(form);
-                });
-            });
-
-            document.querySelectorAll('.delete-response-btn').forEach(button => {
-                button.addEventListener('click', async (event) => {
-                    if (!confirm('Are you sure you want to delete this response?')) {
-                        return;
-                    }
-                    const responseId = event.target.dataset.id;
-
-                    try {
-                        const response = await fetch(`/delete_response/${responseId}`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' }
-                        });
-
-                        const result = await response.json();
-                        alert(result.message);
-                        if (result.success) {
-                            location.reload(); // Refresh to show updated list
-                        }
-                    } catch (error) {
-                        console.error('Error deleting response:', error);
-                        alert('Failed to delete response. Please try again.');
-                    }
-                });
+                } catch (error) {
+                    console.error('Error saving changes:', error);
+                    alert('Failed to save changes. Please try again.');
+                }
             });
         });
-    </script>
-</body>
-</html>
+
+        document.querySelectorAll('.download-pdf-btn').forEach(button => {
+            button.addEventListener('click', async (event) => {
+                const responseId = event.target.dataset.id;
+                const title = event.target.dataset.title;
+                const contentDiv = document.getElementById(`response-content-${responseId}`);
+                const contentToPrint = contentDiv.innerHTML;
+
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/download_pdf/${responseId}`;
+                form.target = '_blank';
+
+                const hiddenFieldContent = document.createElement('input');
+                hiddenFieldContent.type = 'hidden';
+                hiddenFieldContent.name = 'content';
+                hiddenFieldContent.value = contentToPrint;
+                form.appendChild(hiddenFieldContent);
+
+                const hiddenFieldTitle = document.createElement('input');
+                hiddenFieldTitle.type = 'hidden';
+                hiddenFieldTitle.name = 'title';
+                hiddenFieldTitle.value = title;
+                form.appendChild(hiddenFieldTitle);
+
+                document.body.appendChild(form);
+                form.submit();
+                document.body.removeChild(form);
+            });
+        });
+
+        document.querySelectorAll('.delete-response-btn').forEach(button => {
+            button.addEventListener('click', async (event) => {
+                if (!confirm('Are you sure you want to delete this response?')) {
+                    return;
+                }
+                const responseId = event.target.dataset.id;
+
+                try {
+                    const response = await fetch(`/delete_response/${responseId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+
+                    const result = await response.json();
+                    alert(result.message);
+                    if (result.success) {
+                        location.reload(); // Refresh to show updated list
+                    }
+                } catch (error) {
+                    console.error('Error deleting response:', error);
+                    alert('Failed to delete response. Please try again.');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

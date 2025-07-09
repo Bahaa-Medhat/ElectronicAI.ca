@@ -1,543 +1,519 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "layout.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Electronic AI - Circuit Calculator</title>
+{% block title %}Circuit Calculator{% endblock %}
+{% block header %}Circuit Calculator{% endblock %}
+{% block description %}Calculate electrical parameters in circuits.{% endblock %}
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</head>
-
-<body class="bg-light">
-    <div class="container-fluid min-vh-100 d-flex flex-column">
-        <header class="py-4 mb-4 bg-primary text-white rounded-bottom shadow-sm text-center">
-            <h1 class="mb-1">Circuit Calculator</h1>
-            <p class="mb-3">Calculate electrical parameters in circuits.</p>
-            <div class="d-flex justify-content-center gap-2 flex-wrap">
-                <a href="/" class="btn btn-secondary active">Back to Chat</a>
-                <a href="/logout" class="btn btn-danger">Logout</a>
-            </div>
-        </header>
-
-        <main class="flex-grow container mx-auto p-4 md:p-8" style="overflow-y: scroll;">
-            <div class="mb-4" style="overflow-x: auto; white-space: nowrap; overflow-y: hidden;">
-                <div class="d-inline-flex" id="ruleTabs">
-                    <button class="tab-btn btn btn-outline-primary fw-bold px-4 py-2 active" onclick="showRuleTab(0)">1.
-                        Ohm's Law</button>
-                    <button class="tab-btn btn btn-outline-primary fw-bold px-4 py-2" onclick="showRuleTab(1)">2.
-                        Resistors in Series</button>
-                    <button class="tab-btn btn btn-outline-primary fw-bold px-4 py-2" onclick="showRuleTab(2)">3.
-                        Resistors in Parallel</button>
-                    <button class="tab-btn btn btn-outline-primary fw-bold px-4 py-2" onclick="showRuleTab(3)">4.
-                        Voltage Divider</button>
-                    <button class="tab-btn btn btn-outline-primary fw-bold px-4 py-2" onclick="showRuleTab(4)">5.
-                        Current Divider</button>
-                    <button class="tab-btn btn btn-outline-primary fw-bold px-4 py-2" onclick="showRuleTab(5)">6.
-                        Power in Circuits</button>
-                    <button class="tab-btn btn btn-outline-primary fw-bold px-4 py-2" onclick="showRuleTab(6)">7.
-                        Circuit Simulator</button>
-                </div>
-            </div>
-
-            <div id="ruleContent">
-                <!-- Ohm's Law Tab Content -->
-                <div class="rule-tab-content" style="display: block;">
-                    <h2 class="text-2xl font-bold mb-4">1. Ohm's Law (V = I x R)</h2>
-                    <p class="mb-4 text-sm">Enter any two values to calculate the third.</p>
-                    <div class="row">
-                        <div class="col-md-2 mb-2">
-                            <label for="ohmCurrent" class="w-1/4 mb-4">Current (A):</label>
-                            <label for="ohmResistance" class="w-1/4 mb-4">Resistance (Ω):</label>
-                            <label for="ohmVoltage" class="w-1/4 mb-4">Voltage (V):</label>
-                        </div>
-                        <div class="col-md-6">
-                            <input type="number" id="ohmCurrent" class="form-control flex-grow p-2 mb-1"
-                                placeholder="Amperes">
-                            <input type="number" id="ohmResistance" class="form-control flex-grow p-2 mb-1"
-                                placeholder="Ohms">
-                            <input type="number" id="ohmVoltage" class="form-control flex-grow p-2 mb-1"
-                                placeholder="Volts">
-                        </div>
-                    </div>
-
-                    <button onclick="calculateOhmLaw()" class="btn w-full py-2">Calculate Ohm's Law</button>
-                    <div id="ohmOutput" class="output-box mt-4"></div>
-                    <div id="ohmError" class="error-message"></div>
-                </div>
-
-                <!-- Resistors in Series Tab Content -->
-                <div class="rule-tab-content" style="display: none;">
-                    <h2 class="text-2xl font-bold mb-4">2. Resistors in Series (R<sub>eq</sub> = R <sub>1</sub> +
-                        R<sub>2</sub> + ...)</h2>
-                    <p class="mb-4 text-sm">Add resistors to calculate total series resistance.</p>
-                    <div id="seriesResistors" class="mb-4">
-                        <!-- Initial resistor input -->
-                        <div class="input-group flex items-center mb-2">
-                            <label for="seriesR1" class="w-1/4">R1 (Ω):</label>
-                            <input type="number" id="seriesR1" class="form-control flex-grow p-2" placeholder="Ohms">
-                        </div>
-                    </div>
-
-                    <div class="d-flex">
-                        <button onclick="addResistor('series')" class="btn w-full py-2"><i class="fas fa-plus"></i> Add
-                            Resistor</button>
-                        <button onclick="calculateSeriesResistors()" class="btn w-full py-2">Calculate Series
-                            Resistance</button>
-                    </div>
-
-                    <div id="seriesOutput" class="output-box mt-4"></div>
-                    <div id="seriesError" class="error-message"></div>
-                </div>
-
-                <!-- Resistors in Parallel Tab Content -->
-                <div class="rule-tab-content" style="display: none;">
-                    <h2 class="text-2xl font-bold mb-4">3. Resistors in Parallel (1/R <sub>eq</sub> = 1/R <sub>1</sub> +
-                        1/R <sub>2</sub> + ...)</h2>
-                    <p class="mb-4 text-sm">Add resistors to calculate total parallel resistance.</p>
-                    <div id="parallelResistors" class="mb-4">
-                        <!-- Initial resistor input -->
-                        <div class="input-group flex items-center mb-2">
-                            <label for="parallelR1" class="w-1/4">R1 (Ω):</label>
-                            <input type="number" id="parallelR1" class="form-control flex-grow p-2" placeholder="Ohms">
-                        </div>
-                    </div>
-
-                    <div class="d-flex">
-                        <button onclick="addResistor('parallel')" class="btn w-full py-2"><i class="fas fa-plus"></i>
-                            Add Resistor</button>
-                        <button onclick="calculateParallelResistors()" class="btn w-full py-2">Calculate Parallel
-                            Resistance</button>
-                    </div>
-
-                    <div id="parallelOutput" class="output-box mt-4"></div>
-                    <div id="parallelError" class="error-message"></div>
-                </div>
-
-                <!-- Voltage Divider Rule Tab Content -->
-                <div class="rule-tab-content" style="display: none;">
-                    <h2 class="text-2xl font-bold mb-4">4. Voltage Divider Rule (V <sub>x</sub> = V <sub>total</sub> x
-                        (R <sub>x</sub> / R <sub>total</sub>))</h2>
-                    <p class="mb-4 text-sm">Calculate voltage across a specific resistor in a series circuit.</p>
-                    <div class="row">
-                        <div class="col-md-2 mb-2">
-                            <label for="vdVtotal" class="w-1/4 mb-4">Total Voltage (V):</label>
-                            <label for="vdRx" class="w-1/4 mb-4">Resistor R <sub>x</sub> (Ω):</label>
-                            <label for="vdRtotal" class="w-1/4 mb-4">Total Resistance (Ω):</label>
-                        </div>
-                        <div class="col-md-6">
-                            <input type="number" id="vdVtotal" class="form-control flex-grow p-2 mb-1"
-                                placeholder="Volts">
-                            <input type="number" id="vdRx" class="form-control flex-grow p-2 mb-1" placeholder="Ohms">
-                            <input type="number" id="vdRtotal" class="form-control flex-grow p-2 mb-1"
-                                placeholder="Ohms">
-                        </div>
-                    </div>
-
-                    <button onclick="calculateVoltageDivider()" class="btn w-full py-2">Calculate Voltage
-                        Divider</button>
-                    <div id="vdOutput" class="output-box mt-4"></div>
-                    <div id="vdError" class="error-message"></div>
-                </div>
-
-                <!-- Current Divider Rule Tab Content -->
-                <div class="rule-tab-content" style="display: none;">
-                    <h2 class="text-2xl font-bold mb-4">5. Current Divider Rule</h2>
-                    <p class="mb-4 text-sm">Calculate current through branches in a parallel circuit (for two
-                        resistors).
-                    </p>
-                    <div class="row">
-                        <div class="col-md-2 mb-2">
-                            <label for="cdItotal" class="w-1/4 mb-4">Total Current (A):</label>
-                            <label for="cdR1" class="w-1/4 mb-4">Resistor R <sub>1</sub> (Ω):</label>
-                            <label for="cdR2" class="w-1/4 mb-4">Resistor R <sub>2</sub> (Ω):</label>
-                        </div>
-                        <div class="col-md-6">
-                            <input type="number" id="cdItotal" class="form-control flex-grow p-2 mb-1"
-                                placeholder="Amperes">
-                            <input type="number" id="cdR1" class="form-control flex-grow p-2 mb-1" placeholder="Ohms">
-                            <input type="number" id="cdR2" class="form-control flex-grow p-2 mb-1" placeholder="Ohms">
-                        </div>
-                    </div>
-
-                    <button onclick="calculateCurrentDivider()" class="btn w-full py-2">Calculate Current
-                        Divider</button>
-                    <div id="cdOutput" class="output-box mt-4"></div>
-                    <div id="cdError" class="error-message"></div>
-                </div>
-
-                <!-- Power in Circuits Tab Content -->
-                <div class="rule-tab-content" style="display: none;">
-                    <h2 class="text-2xl font-bold mb-4">6. Power in Circuits (P = V x I, P = I<sup>2</sup> x R, P =
-                        V<sup>2</sup> / R)</h2>
-                    <p class="mb-4 text-sm">Enter any two values to calculate power and other missing values.</p>
-
-                    <div class="row">
-                        <div class="col-md-2 mb-2">
-                            <label for="powerVoltage" class="w-1/4 mb-4">Voltage (V):</label>
-                            <label for="powerCurrent" class="w-1/4 mb-4">Current (A):</label>
-                            <label for="powerResistance" class="w-1/4 mb-4">Resistance (Ω):</label>
-                            <label for="powerPower" class="w-1/4 mb-4">Power (W):</label>
-                        </div>
-                        <div class="col-md-6">
-                            <input type="number" id="powerVoltage" class="form-control flex-grow p-2 mb-1"
-                                placeholder="Volts">
-                            <input type="number" id="powerCurrent" class="form-control flex-grow p-2 mb-1"
-                                placeholder="Amperes">
-                            <input type="number" id="powerResistance" class="form-control flex-grow p-2 mb-1"
-                                placeholder="Ohms">
-                            <input type="number" id="powerPower" class="form-control flex-grow p-2 mb-1"
-                                placeholder="Watts">
-                        </div>
-                    </div>
-
-                    <button onclick="calculatePower()" class="btn w-full py-2">Calculate Power</button>
-                    <div id="powerOutput" class="output-box mt-4"></div>
-                    <div id="powerError" class="error-message"></div>
-                </div>
-
-                <div class="rule-tab-content" style="display: block;">
-                    <iframe src="https://www.falstad.com/circuit/circuitjs.html" width="100%" height="600"
-                        style="border: none;"></iframe>
-                </div>
-            </div>
-        </main>
-
-        <!-- Footer -->
-        <footer class="bg-dark text-white p-4 text-center mt-8 shadow-lg">
-            <p>&copy; 2025 Electronic AI. All rights reserved.</p>
-        </footer>
+{% block content %}
+<main class="flex-grow container mx-auto p-4 md:p-8" style="overflow-y: scroll;">
+    <div class="mb-4" style="overflow-x: auto; white-space: nowrap; overflow-y: hidden;">
+        <div class="d-inline-flex" id="ruleTabs">
+            <button class="tab-btn btn btn-outline-primary fw-bold px-4 py-2 active" onclick="showRuleTab(0)">1.
+                Ohm's Law</button>
+            <button class="tab-btn btn btn-outline-primary fw-bold px-4 py-2" onclick="showRuleTab(1)">2.
+                Resistors in Series</button>
+            <button class="tab-btn btn btn-outline-primary fw-bold px-4 py-2" onclick="showRuleTab(2)">3.
+                Resistors in Parallel</button>
+            <button class="tab-btn btn btn-outline-primary fw-bold px-4 py-2" onclick="showRuleTab(3)">4.
+                Voltage Divider</button>
+            <button class="tab-btn btn btn-outline-primary fw-bold px-4 py-2" onclick="showRuleTab(4)">5.
+                Current Divider</button>
+            <button class="tab-btn btn btn-outline-primary fw-bold px-4 py-2" onclick="showRuleTab(5)">6.
+                Power in Circuits</button>
+            <button class="tab-btn btn btn-outline-primary fw-bold px-4 py-2" onclick="showRuleTab(6)">7.
+                Circuit Simulator</button>
+        </div>
     </div>
 
-    <script>
-        function getInputValue(id) {
-            const input = document.getElementById(id);
-            const value = parseFloat(input.value);
-            return isNaN(value) ? null : value;
-        }
+    <div id="ruleContent">
+        <!-- Ohm's Law Tab Content -->
+        <div class="rule-tab-content" style="display: block;">
+            <h2 class="text-2xl font-bold mb-4">1. Ohm's Law (V = I x R)</h2>
+            <p class="mb-4 text-sm">Enter any two values to calculate the third.</p>
+            <div class="row">
+                <div class="col-md-2 mb-2">
+                    <label for="ohmCurrent" class="w-1/4 mb-4">Current (A):</label>
+                    <label for="ohmResistance" class="w-1/4 mb-4">Resistance (Ω):</label>
+                    <label for="ohmVoltage" class="w-1/4 mb-4">Voltage (V):</label>
+                </div>
+                <div class="col-md-6">
+                    <input type="number" id="ohmCurrent" class="form-control flex-grow p-2 mb-1"
+                        placeholder="Amperes">
+                    <input type="number" id="ohmResistance" class="form-control flex-grow p-2 mb-1"
+                        placeholder="Ohms">
+                    <input type="number" id="ohmVoltage" class="form-control flex-grow p-2 mb-1"
+                        placeholder="Volts">
+                </div>
+            </div>
 
-        function displayOutput(outputId, message, errorId = null) {
-            document.getElementById(outputId).innerHTML = message;
-            if (errorId) {
-                document.getElementById(errorId).innerHTML = '';
+            <button onclick="calculateOhmLaw()" class="btn w-full py-2">Calculate Ohm's Law</button>
+            <div id="ohmOutput" class="output-box mt-4"></div>
+            <div id="ohmError" class="error-message"></div>
+        </div>
+
+        <!-- Resistors in Series Tab Content -->
+        <div class="rule-tab-content" style="display: none;">
+            <h2 class="text-2xl font-bold mb-4">2. Resistors in Series (R<sub>eq</sub> = R <sub>1</sub> +
+                R<sub>2</sub> + ...)</h2>
+            <p class="mb-4 text-sm">Add resistors to calculate total series resistance.</p>
+            <div id="seriesResistors" class="mb-4">
+                <!-- Initial resistor input -->
+                <div class="input-group flex items-center mb-2">
+                    <label for="seriesR1" class="w-1/4">R1 (Ω):</label>
+                    <input type="number" id="seriesR1" class="form-control flex-grow p-2" placeholder="Ohms">
+                </div>
+            </div>
+
+            <div class="d-flex">
+                <button onclick="addResistor('series')" class="btn w-full py-2"><i class="fas fa-plus"></i> Add
+                    Resistor</button>
+                <button onclick="calculateSeriesResistors()" class="btn w-full py-2">Calculate Series
+                    Resistance</button>
+            </div>
+
+            <div id="seriesOutput" class="output-box mt-4"></div>
+            <div id="seriesError" class="error-message"></div>
+        </div>
+
+        <!-- Resistors in Parallel Tab Content -->
+        <div class="rule-tab-content" style="display: none;">
+            <h2 class="text-2xl font-bold mb-4">3. Resistors in Parallel (1/R <sub>eq</sub> = 1/R <sub>1</sub> +
+                1/R <sub>2</sub> + ...)</h2>
+            <p class="mb-4 text-sm">Add resistors to calculate total parallel resistance.</p>
+            <div id="parallelResistors" class="mb-4">
+                <!-- Initial resistor input -->
+                <div class="input-group flex items-center mb-2">
+                    <label for="parallelR1" class="w-1/4">R1 (Ω):</label>
+                    <input type="number" id="parallelR1" class="form-control flex-grow p-2" placeholder="Ohms">
+                </div>
+            </div>
+
+            <div class="d-flex">
+                <button onclick="addResistor('parallel')" class="btn w-full py-2"><i class="fas fa-plus"></i>
+                    Add Resistor</button>
+                <button onclick="calculateParallelResistors()" class="btn w-full py-2">Calculate Parallel
+                    Resistance</button>
+            </div>
+
+            <div id="parallelOutput" class="output-box mt-4"></div>
+            <div id="parallelError" class="error-message"></div>
+        </div>
+
+        <!-- Voltage Divider Rule Tab Content -->
+        <div class="rule-tab-content" style="display: none;">
+            <h2 class="text-2xl font-bold mb-4">4. Voltage Divider Rule (V <sub>x</sub> = V <sub>total</sub> x
+                (R <sub>x</sub> / R <sub>total</sub>))</h2>
+            <p class="mb-4 text-sm">Calculate voltage across a specific resistor in a series circuit.</p>
+            <div class="row">
+                <div class="col-md-2 mb-2">
+                    <label for="vdVtotal" class="w-1/4 mb-4">Total Voltage (V):</label>
+                    <label for="vdRx" class="w-1/4 mb-4">Resistor R <sub>x</sub> (Ω):</label>
+                    <label for="vdRtotal" class="w-1/4 mb-4">Total Resistance (Ω):</label>
+                </div>
+                <div class="col-md-6">
+                    <input type="number" id="vdVtotal" class="form-control flex-grow p-2 mb-1"
+                        placeholder="Volts">
+                    <input type="number" id="vdRx" class="form-control flex-grow p-2 mb-1" placeholder="Ohms">
+                    <input type="number" id="vdRtotal" class="form-control flex-grow p-2 mb-1"
+                        placeholder="Ohms">
+                </div>
+            </div>
+
+            <button onclick="calculateVoltageDivider()" class="btn w-full py-2">Calculate Voltage
+                Divider</button>
+            <div id="vdOutput" class="output-box mt-4"></div>
+            <div id="vdError" class="error-message"></div>
+        </div>
+
+        <!-- Current Divider Rule Tab Content -->
+        <div class="rule-tab-content" style="display: none;">
+            <h2 class="text-2xl font-bold mb-4">5. Current Divider Rule</h2>
+            <p class="mb-4 text-sm">Calculate current through branches in a parallel circuit (for two
+                resistors).
+            </p>
+            <div class="row">
+                <div class="col-md-2 mb-2">
+                    <label for="cdItotal" class="w-1/4 mb-4">Total Current (A):</label>
+                    <label for="cdR1" class="w-1/4 mb-4">Resistor R <sub>1</sub> (Ω):</label>
+                    <label for="cdR2" class="w-1/4 mb-4">Resistor R <sub>2</sub> (Ω):</label>
+                </div>
+                <div class="col-md-6">
+                    <input type="number" id="cdItotal" class="form-control flex-grow p-2 mb-1"
+                        placeholder="Amperes">
+                    <input type="number" id="cdR1" class="form-control flex-grow p-2 mb-1" placeholder="Ohms">
+                    <input type="number" id="cdR2" class="form-control flex-grow p-2 mb-1" placeholder="Ohms">
+                </div>
+            </div>
+
+            <button onclick="calculateCurrentDivider()" class="btn w-full py-2">Calculate Current
+                Divider</button>
+            <div id="cdOutput" class="output-box mt-4"></div>
+            <div id="cdError" class="error-message"></div>
+        </div>
+
+        <!-- Power in Circuits Tab Content -->
+        <div class="rule-tab-content" style="display: none;">
+            <h2 class="text-2xl font-bold mb-4">6. Power in Circuits (P = V x I, P = I<sup>2</sup> x R, P =
+                V<sup>2</sup> / R)</h2>
+            <p class="mb-4 text-sm">Enter any two values to calculate power and other missing values.</p>
+
+            <div class="row">
+                <div class="col-md-2 mb-2">
+                    <label for="powerVoltage" class="w-1/4 mb-4">Voltage (V):</label>
+                    <label for="powerCurrent" class="w-1/4 mb-4">Current (A):</label>
+                    <label for="powerResistance" class="w-1/4 mb-4">Resistance (Ω):</label>
+                    <label for="powerPower" class="w-1/4 mb-4">Power (W):</label>
+                </div>
+                <div class="col-md-6">
+                    <input type="number" id="powerVoltage" class="form-control flex-grow p-2 mb-1"
+                        placeholder="Volts">
+                    <input type="number" id="powerCurrent" class="form-control flex-grow p-2 mb-1"
+                        placeholder="Amperes">
+                    <input type="number" id="powerResistance" class="form-control flex-grow p-2 mb-1"
+                        placeholder="Ohms">
+                    <input type="number" id="powerPower" class="form-control flex-grow p-2 mb-1"
+                        placeholder="Watts">
+                </div>
+            </div>
+
+            <button onclick="calculatePower()" class="btn w-full py-2">Calculate Power</button>
+            <div id="powerOutput" class="output-box mt-4"></div>
+            <div id="powerError" class="error-message"></div>
+        </div>
+
+        <!-- Circuit Simulator Tab Content -->
+        <div class="rule-tab-content" style="display: none;">
+            <iframe src="https://www.falstad.com/circuit/circuitjs.html" width="100%" height="600"
+                style="border: none;"></iframe>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function getInputValue(id) {
+        const input = document.getElementById(id);
+        const value = parseFloat(input.value);
+        return isNaN(value) ? null : value;
+    }
+
+    function displayOutput(outputId, message, errorId = null) {
+        document.getElementById(outputId).innerHTML = message;
+        if (errorId) {
+            document.getElementById(errorId).innerHTML = '';
+        }
+    }
+
+    function displayError(errorId, message, outputId = null) {
+        document.getElementById(errorId).innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${message}`;
+        if (outputId) {
+            document.getElementById(outputId).innerHTML = '';
+        }
+    }
+
+    function showRuleTab(index) {
+        const tabContents = document.querySelectorAll('.rule-tab-content');
+        const tabButtons = document.querySelectorAll('.tab-btn');
+
+        tabContents.forEach((content, i) => {
+            content.style.display = (i === index) ? 'block' : 'none';
+        });
+
+        tabButtons.forEach((button, i) => {
+            if (i === index) {
+                button.classList.add('active');
+            } else {
+                button.classList.remove('active');
+            }
+        });
+    }
+
+    // 1. Ohm's Law Calculation
+    function calculateOhmLaw() {
+        const V = getInputValue('ohmVoltage');
+        const I = getInputValue('ohmCurrent');
+        const R = getInputValue('ohmResistance');
+        const outputDiv = 'ohmOutput';
+        const errorDiv = 'ohmError';
+
+        let result = '';
+        let error = '';
+
+        // Check how many inputs are provided
+        const inputsProvided = [V, I, R].filter(val => val !== null).length;
+
+        if (inputsProvided < 2) {
+            error = 'Please enter at least two values.';
+        } else if (inputsProvided === 3) {
+            if (Math.abs(V - (I * R)) > 1e-9) {
+                error = 'Input values are inconsistent with Ohm\'s Law.';
+            } else {
+                result = `V = ${V} V, I = ${I} A, R = ${R} Ω. Values are consistent.`;
+            }
+        } else {
+            if (V !== null && I !== null) {
+                if (I === 0) { error = 'Current cannot be zero for resistance calculation.'; }
+                else { result = `Resistance (R) = ${(V / I).toFixed(4)} Ω`; }
+            } else if (V !== null && R !== null) {
+                if (R === 0) { error = 'Resistance cannot be zero for current calculation.'; }
+                else { result = `Current (I) = ${(V / R).toFixed(4)} A`; }
+            } else if (I !== null && R !== null) {
+                result = `Voltage (V) = ${(I * R).toFixed(4)} V`;
             }
         }
 
-        function displayError(errorId, message, outputId = null) {
-            document.getElementById(errorId).innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${message}`;
-            if (outputId) {
-                document.getElementById(outputId).innerHTML = '';
-            }
+        if (error) {
+            displayError(errorDiv, error, outputDiv);
+        } else {
+            displayOutput(outputDiv, result, errorDiv);
         }
+    }
 
-        function showRuleTab(index) {
-            const tabContents = document.querySelectorAll('.rule-tab-content');
-            const tabButtons = document.querySelectorAll('.tab-btn');
+    // 2&3. Resistors in Series and Parallel - Dynamic Input Management
+    let seriesResistorCount = 1;
+    let parallelResistorCount = 1;
 
-            tabContents.forEach((content, i) => {
-                content.style.display = (i === index) ? 'block' : 'none';
+    function addResistor(type) {
+        const containerId = type === 'series' ? 'seriesResistors' : 'parallelResistors';
+        const inputPrefix = type === 'series' ? 'seriesR' : 'parallelR';
+        let count = type === 'series' ? seriesResistorCount : parallelResistorCount;
+
+        count++;
+        const newDiv = document.createElement('div');
+        newDiv.className = 'input-group flex items-center mb-2';
+        newDiv.innerHTML = `
+            <label for="${inputPrefix}${count}" class="w-1/4">R${count} (Ω):</label>
+            <input type="number" id="${inputPrefix}${count}" class="form-control flex-grow p-2" placeholder="Ohms">
+            <button onclick="removeResistor(this, '${type}')" class="btn ml-2 px-3 py-1 bg-red-800 hover:bg-red-600 text-white rounded-md">
+                <i class="fas fa-minus"></i>
+            </button>
+        `;
+        document.getElementById(containerId).appendChild(newDiv);
+
+        if (type === 'series') {
+            seriesResistorCount = count;
+        } else {
+            parallelResistorCount = count;
+        }
+    }
+
+    function removeResistor(button, type) {
+        const containerId = type === 'series' ? 'seriesResistors' : 'parallelResistors';
+        const container = document.getElementById(containerId);
+        const parentDiv = button.parentNode;
+
+        if (container.children.length > 1) {
+            container.removeChild(parentDiv);
+            const inputs = container.querySelectorAll('input[type="number"]');
+            inputs.forEach((input, index) => {
+                input.id = `${type === 'series' ? 'seriesR' : 'parallelR'}${index + 1}`;
+                input.previousElementSibling.textContent = `R${index + 1} (Ω):`;
             });
+            if (type === 'series') {
+                seriesResistorCount = inputs.length;
+            } else {
+                parallelResistorCount = inputs.length;
+            }
+        } else {
+            const errorDiv = type === 'series' ? 'seriesError' : 'parallelError';
+            displayError(errorDiv, 'At least one resistor is required.');
+            setTimeout(() => displayError(errorDiv, ''), 3000);
+        }
+    }
 
-            tabButtons.forEach((button, i) => {
-                if (i === index) {
-                    button.classList.add('active');
-                } else {
-                    button.classList.remove('active');
+
+    // 2. Resistors in Series Calculation
+    function calculateSeriesResistors() {
+        const containerId = 'seriesResistors';
+        const outputDiv = 'seriesOutput';
+        const errorDiv = 'seriesError';
+        const inputs = document.getElementById(containerId).querySelectorAll('input[type="number"]');
+        let totalResistance = 0;
+        let hasError = false;
+
+        if (inputs.length === 0) {
+            displayError(errorDiv, 'Please add at least one resistor.');
+            return;
+        }
+
+        inputs.forEach((input, index) => {
+            const R = parseFloat(input.value);
+            if (isNaN(R) || R < 0) {
+                displayError(errorDiv, `Please enter a valid positive number for R${index + 1}.`);
+                hasError = true;
+            } else {
+                totalResistance += R;
+            }
+        });
+
+        if (hasError) {
+            displayOutput(outputDiv, '');
+            return;
+        }
+
+        displayOutput(outputDiv, `Equivalent Resistance (R<sub>eq</sub>) = ${totalResistance.toFixed(4)} Ω`, errorDiv);
+    }
+
+    // 3. Resistors in Parallel Calculation
+    function calculateParallelResistors() {
+        const containerId = 'parallelResistors';
+        const outputDiv = 'parallelOutput';
+        const errorDiv = 'parallelError';
+        const inputs = document.getElementById(containerId).querySelectorAll('input[type="number"]');
+        let inverseSum = 0;
+        let hasError = false;
+
+        if (inputs.length === 0) {
+            displayError(errorDiv, 'Please add at least one resistor.');
+            return;
+        }
+
+        inputs.forEach((input, index) => {
+            const R = parseFloat(input.value);
+            if (isNaN(R) || R <= 0) {
+                displayError(errorDiv, `Please enter a valid positive number for R${index + 1}. Resistance cannot be zero.`);
+                hasError = true;
+            } else {
+                inverseSum += 1 / R;
+            }
+        });
+
+        if (hasError) {
+            displayOutput(outputDiv, '');
+            return;
+        }
+
+        let equivalentResistance = (inverseSum === 0) ? 0 : (1 / inverseSum);
+        displayOutput(outputDiv, `Equivalent Resistance (R <sub>eq</sub>) = ${equivalentResistance.toFixed(4)} Ω`, errorDiv);
+    }
+
+    // 4. Voltage Divider Rule Calculation
+    function calculateVoltageDivider() {
+        const Vtotal = getInputValue('vdVtotal');
+        const Rx = getInputValue('vdRx');
+        const Rtotal = getInputValue('vdRtotal');
+        const outputDiv = 'vdOutput';
+        const errorDiv = 'vdError';
+
+        if (Vtotal === null || Rx === null || Rtotal === null) {
+            displayError(errorDiv, 'Please enter all three values (Total Voltage, Rx, Total Resistance).');
+            return;
+        }
+        if (Rtotal <= 0) {
+            displayError(errorDiv, 'Total Resistance must be greater than zero.');
+            return;
+        }
+        if (Rx < 0) {
+            displayError(errorDiv, 'Rx cannot be negative.');
+            return;
+        }
+
+        const Vx = Vtotal * (Rx / Rtotal);
+        displayOutput(outputDiv, `Voltage across R <sub>x</sub> (V <sub>x</sub>) = ${Vx.toFixed(4)} V`, errorDiv);
+    }
+
+    // 5. Current Divider Rule Calculation (for two parallel resistors)
+    function calculateCurrentDivider() {
+        const Itotal = getInputValue('cdItotal');
+        const R1 = getInputValue('cdR1');
+        const R2 = getInputValue('cdR2');
+        const outputDiv = 'cdOutput';
+        const errorDiv = 'cdError';
+
+        if (Itotal === null || R1 === null || R2 === null) {
+            displayError(errorDiv, 'Please enter Total Current, R1, and R2.');
+            return;
+        }
+        if (R1 <= 0 || R2 <= 0) {
+            displayError(errorDiv, 'Both R1 and R2 must be positive.');
+            return;
+        }
+        if ((R1 + R2) === 0) {
+            displayError(errorDiv, 'Sum of R1 and R2 cannot be zero.');
+            return;
+        }
+
+        const I1 = Itotal * (R2 / (R1 + R2));
+        const I2 = Itotal * (R1 / (R1 + R2));
+        displayOutput(outputDiv, `Current through R1 (I<sub>1</sub>) = ${I1.toFixed(4)} A<br>Current through R2 (I<sub>2</sub>) = ${I2.toFixed(4)} A`, errorDiv);
+    }
+
+    // 6. Power in Circuits Calculation
+    function calculatePower() {
+        let V = getInputValue('powerVoltage');
+        let I = getInputValue('powerCurrent');
+        let R = getInputValue('powerResistance');
+        let P = getInputValue('powerPower');
+        const outputDiv = 'powerOutput';
+        const errorDiv = 'powerError';
+
+        const inputs = [V, I, R, P].filter(val => val !== null);
+
+        if (inputs.length < 2) {
+            displayError(errorDiv, 'Please enter at least two values.');
+            return;
+        }
+
+        let calculatedV = V;
+        let calculatedI = I;
+        let calculatedR = R;
+        let calculatedP = P;
+        let error = '';
+
+        try {
+            if (V !== null && I !== null) {
+                calculatedP = V * I;
+                if (I !== 0) calculatedR = V / I;
+            } else if (V !== null && R !== null) {
+                calculatedI = V / R;
+                calculatedP = V * calculatedI;
+            } else if (I !== null && R !== null) {
+                calculatedV = I * R;
+                calculatedP = I * calculatedV;
+            } else if (P !== null && V !== null) {
+                if (V === 0) { error = 'Voltage cannot be zero for current/resistance calculation.'; }
+                else {
+                    calculatedI = P / V;
+                    calculatedR = V / calculatedI;
                 }
-            });
-        }
-
-        // 1. Ohm's Law Calculation
-        function calculateOhmLaw() {
-            const V = getInputValue('ohmVoltage');
-            const I = getInputValue('ohmCurrent');
-            const R = getInputValue('ohmResistance');
-            const outputDiv = 'ohmOutput';
-            const errorDiv = 'ohmError';
-
-            let result = '';
-            let error = '';
-
-            // Check how many inputs are provided
-            const inputsProvided = [V, I, R].filter(val => val !== null).length;
-
-            if (inputsProvided < 2) {
-                error = 'Please enter at least two values.';
-            } else if (inputsProvided === 3) {
-                if (Math.abs(V - (I * R)) > 1e-9) {
-                    error = 'Input values are inconsistent with Ohm\'s Law.';
-                } else {
-                    result = `V = ${V} V, I = ${I} A, R = ${R} Ω. Values are consistent.`;
+            } else if (P !== null && I !== null) {
+                if (I === 0) { error = 'Current cannot be zero for voltage/resistance calculation.'; }
+                else {
+                    calculatedV = P / I;
+                    calculatedR = calculatedV / I;
+                }
+            } else if (P !== null && R !== null) {
+                if (R === 0) { error = 'Resistance cannot be zero for voltage/current calculation.'; }
+                else {
+                    calculatedV = Math.sqrt(P * R);
+                    calculatedI = Math.sqrt(P / R);
                 }
             } else {
-                if (V !== null && I !== null) {
-                    if (I === 0) { error = 'Current cannot be zero for resistance calculation.'; }
-                    else { result = `Resistance (R) = ${(V / I).toFixed(4)} Ω`; }
-                } else if (V !== null && R !== null) {
-                    if (R === 0) { error = 'Resistance cannot be zero for current calculation.'; }
-                    else { result = `Current (I) = ${(V / R).toFixed(4)} A`; }
-                } else if (I !== null && R !== null) {
-                    result = `Voltage (V) = ${(I * R).toFixed(4)} V`;
-                }
+                error = 'Could not calculate with the given inputs. Ensure at least two independent values are provided.';
             }
 
             if (error) {
                 displayError(errorDiv, error, outputDiv);
-            } else {
-                displayOutput(outputDiv, result, errorDiv);
+                return;
             }
+
+            let result = '';
+            if (calculatedP !== null && !isNaN(calculatedP)) result += `Power (P) = ${calculatedP.toFixed(4)} W<br>`;
+            if (calculatedV !== null && !isNaN(calculatedV)) result += `Voltage (V) = ${calculatedV.toFixed(4)} V<br>`;
+            if (calculatedI !== null && !isNaN(calculatedI)) result += `Current (I) = ${calculatedI.toFixed(4)} A<br>`;
+            if (calculatedR !== null && !isNaN(calculatedR)) result += `Resistance (R) = ${calculatedR.toFixed(4)} Ω`;
+
+            displayOutput(outputDiv, result, errorDiv);
+
+        } catch (e) {
+            displayError(errorDiv, 'An error occurred during calculation. Check inputs.', outputDiv);
+            console.error(e);
         }
+    }
 
-        // 2&3. Resistors in Series and Parallel - Dynamic Input Management
-        let seriesResistorCount = 1;
-        let parallelResistorCount = 1;
-
-        function addResistor(type) {
-            const containerId = type === 'series' ? 'seriesResistors' : 'parallelResistors';
-            const inputPrefix = type === 'series' ? 'seriesR' : 'parallelR';
-            let count = type === 'series' ? seriesResistorCount : parallelResistorCount;
-
-            count++;
-            const newDiv = document.createElement('div');
-            newDiv.className = 'input-group flex items-center mb-2';
-            newDiv.innerHTML = `
-                <label for="${inputPrefix}${count}" class="w-1/4">R${count} (Ω):</label>
-                <input type="number" id="${inputPrefix}${count}" class="form-control flex-grow p-2" placeholder="Ohms">
-                <button onclick="removeResistor(this, '${type}')" class="btn ml-2 px-3 py-1 bg-red-800 hover:bg-red-600 text-white rounded-md">
-                    <i class="fas fa-minus"></i>
-                </button>
-            `;
-            document.getElementById(containerId).appendChild(newDiv);
-
-            if (type === 'series') {
-                seriesResistorCount = count;
-            } else {
-                parallelResistorCount = count;
-            }
-        }
-
-        function removeResistor(button, type) {
-            const containerId = type === 'series' ? 'seriesResistors' : 'parallelResistors';
-            const container = document.getElementById(containerId);
-            const parentDiv = button.parentNode;
-
-            if (container.children.length > 1) {
-                container.removeChild(parentDiv);
-                const inputs = container.querySelectorAll('input[type="number"]');
-                inputs.forEach((input, index) => {
-                    input.id = `${type === 'series' ? 'seriesR' : 'parallelR'}${index + 1}`;
-                    input.previousElementSibling.textContent = `R${index + 1} (Ω):`;
-                });
-                if (type === 'series') {
-                    seriesResistorCount = inputs.length;
-                } else {
-                    parallelResistorCount = inputs.length;
-                }
-            } else {
-                const errorDiv = type === 'series' ? 'seriesError' : 'parallelError';
-                displayError(errorDiv, 'At least one resistor is required.');
-                setTimeout(() => displayError(errorDiv, ''), 3000);
-            }
-        }
-
-
-        // 2. Resistors in Series Calculation
-        function calculateSeriesResistors() {
-            const containerId = 'seriesResistors';
-            const outputDiv = 'seriesOutput';
-            const errorDiv = 'seriesError';
-            const inputs = document.getElementById(containerId).querySelectorAll('input[type="number"]');
-            let totalResistance = 0;
-            let hasError = false;
-
-            if (inputs.length === 0) {
-                displayError(errorDiv, 'Please add at least one resistor.');
-                return;
-            }
-
-            inputs.forEach((input, index) => {
-                const R = parseFloat(input.value);
-                if (isNaN(R) || R < 0) {
-                    displayError(errorDiv, `Please enter a valid positive number for R${index + 1}.`);
-                    hasError = true;
-                } else {
-                    totalResistance += R;
-                }
-            });
-
-            if (hasError) {
-                displayOutput(outputDiv, '');
-                return;
-            }
-
-            displayOutput(outputDiv, `Equivalent Resistance (R<sub>eq</sub>) = ${totalResistance.toFixed(4)} Ω`, errorDiv);
-        }
-
-        // 3. Resistors in Parallel Calculation
-        function calculateParallelResistors() {
-            const containerId = 'parallelResistors';
-            const outputDiv = 'parallelOutput';
-            const errorDiv = 'parallelError';
-            const inputs = document.getElementById(containerId).querySelectorAll('input[type="number"]');
-            let inverseSum = 0;
-            let hasError = false;
-
-            if (inputs.length === 0) {
-                displayError(errorDiv, 'Please add at least one resistor.');
-                return;
-            }
-
-            inputs.forEach((input, index) => {
-                const R = parseFloat(input.value);
-                if (isNaN(R) || R <= 0) {
-                    displayError(errorDiv, `Please enter a valid positive number for R${index + 1}. Resistance cannot be zero.`);
-                    hasError = true;
-                } else {
-                    inverseSum += 1 / R;
-                }
-            });
-
-            if (hasError) {
-                displayOutput(outputDiv, '');
-                return;
-            }
-
-            let equivalentResistance = (inverseSum === 0) ? 0 : (1 / inverseSum);
-            displayOutput(outputDiv, `Equivalent Resistance (R <sub>eq</sub>) = ${equivalentResistance.toFixed(4)} Ω`, errorDiv);
-        }
-
-        // 4. Voltage Divider Rule Calculation
-        function calculateVoltageDivider() {
-            const Vtotal = getInputValue('vdVtotal');
-            const Rx = getInputValue('vdRx');
-            const Rtotal = getInputValue('vdRtotal');
-            const outputDiv = 'vdOutput';
-            const errorDiv = 'vdError';
-
-            if (Vtotal === null || Rx === null || Rtotal === null) {
-                displayError(errorDiv, 'Please enter all three values (Total Voltage, Rx, Total Resistance).');
-                return;
-            }
-            if (Rtotal <= 0) {
-                displayError(errorDiv, 'Total Resistance must be greater than zero.');
-                return;
-            }
-            if (Rx < 0) {
-                displayError(errorDiv, 'Rx cannot be negative.');
-                return;
-            }
-
-            const Vx = Vtotal * (Rx / Rtotal);
-            displayOutput(outputDiv, `Voltage across R <sub>x</sub> (V <sub>x</sub>) = ${Vx.toFixed(4)} V`, errorDiv);
-        }
-
-        // 5. Current Divider Rule Calculation (for two parallel resistors)
-        function calculateCurrentDivider() {
-            const Itotal = getInputValue('cdItotal');
-            const R1 = getInputValue('cdR1');
-            const R2 = getInputValue('cdR2');
-            const outputDiv = 'cdOutput';
-            const errorDiv = 'cdError';
-
-            if (Itotal === null || R1 === null || R2 === null) {
-                displayError(errorDiv, 'Please enter Total Current, R1, and R2.');
-                return;
-            }
-            if (R1 <= 0 || R2 <= 0) {
-                displayError(errorDiv, 'Both R1 and R2 must be positive.');
-                return;
-            }
-            if ((R1 + R2) === 0) {
-                displayError(errorDiv, 'Sum of R1 and R2 cannot be zero.');
-                return;
-            }
-
-            const I1 = Itotal * (R2 / (R1 + R2));
-            const I2 = Itotal * (R1 / (R1 + R2));
-            displayOutput(outputDiv, `Current through R1 (I<sub>1</sub>) = ${I1.toFixed(4)} A<br>Current through R2 (I<sub>2</sub>) = ${I2.toFixed(4)} A`, errorDiv);
-        }
-
-        // 6. Power in Circuits Calculation
-        function calculatePower() {
-            let V = getInputValue('powerVoltage');
-            let I = getInputValue('powerCurrent');
-            let R = getInputValue('powerResistance');
-            let P = getInputValue('powerPower');
-            const outputDiv = 'powerOutput';
-            const errorDiv = 'powerError';
-
-            const inputs = [V, I, R, P].filter(val => val !== null);
-
-            if (inputs.length < 2) {
-                displayError(errorDiv, 'Please enter at least two values.');
-                return;
-            }
-
-            let calculatedV = V;
-            let calculatedI = I;
-            let calculatedR = R;
-            let calculatedP = P;
-            let error = '';
-
-            try {
-                if (V !== null && I !== null) {
-                    calculatedP = V * I;
-                    if (I !== 0) calculatedR = V / I;
-                } else if (V !== null && R !== null) {
-                    calculatedI = V / R;
-                    calculatedP = V * calculatedI;
-                } else if (I !== null && R !== null) {
-                    calculatedV = I * R;
-                    calculatedP = I * calculatedV;
-                } else if (P !== null && V !== null) {
-                    if (V === 0) { error = 'Voltage cannot be zero for current/resistance calculation.'; }
-                    else {
-                        calculatedI = P / V;
-                        calculatedR = V / calculatedI;
-                    }
-                } else if (P !== null && I !== null) {
-                    if (I === 0) { error = 'Current cannot be zero for voltage/resistance calculation.'; }
-                    else {
-                        calculatedV = P / I;
-                        calculatedR = calculatedV / I;
-                    }
-                } else if (P !== null && R !== null) {
-                    if (R === 0) { error = 'Resistance cannot be zero for voltage/current calculation.'; }
-                    else {
-                        calculatedV = Math.sqrt(P * R);
-                        calculatedI = Math.sqrt(P / R);
-                    }
-                } else {
-                    error = 'Could not calculate with the given inputs. Ensure at least two independent values are provided.';
-                }
-
-                if (error) {
-                    displayError(errorDiv, error, outputDiv);
-                    return;
-                }
-
-                let result = '';
-                if (calculatedP !== null && !isNaN(calculatedP)) result += `Power (P) = ${calculatedP.toFixed(4)} W<br>`;
-                if (calculatedV !== null && !isNaN(calculatedV)) result += `Voltage (V) = ${calculatedV.toFixed(4)} V<br>`;
-                if (calculatedI !== null && !isNaN(calculatedI)) result += `Current (I) = ${calculatedI.toFixed(4)} A<br>`;
-                if (calculatedR !== null && !isNaN(calculatedR)) result += `Resistance (R) = ${calculatedR.toFixed(4)} Ω`;
-
-                displayOutput(outputDiv, result, errorDiv);
-
-            } catch (e) {
-                displayError(errorDiv, 'An error occurred during calculation. Check inputs.', outputDiv);
-                console.error(e);
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            showRuleTab(0);
-        });
-    </script>
-</body>
-
-</html>
+    document.addEventListener('DOMContentLoaded', function () {
+        showRuleTab(0);
+    });
+</script>
+{% endblock %}
