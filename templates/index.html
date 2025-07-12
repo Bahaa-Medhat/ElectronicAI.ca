@@ -2,249 +2,249 @@
 {% block title %} Home {% endblock %}
 
 {% block meta %}
-    <meta name="description"
-        content="Explore the convergence of electronics and artificial intelligence at ElectronicAI.ca. Discover articles, projects, and insights into AI hardware, embedded AI, IoT, machine learning, and robotics.">
-    <meta name="keywords"
-        content="electronics, artificial intelligence, AI, embedded AI, IoT, machine learning, deep learning, robotics, AI hardware, microcontrollers, sensors, actuators, neural networks, computer vision, natural language processing, smart devices, automation, electronic circuits, AI applications, Canada AI, electronicai.ca">
-    <meta name="author" content="ElectronicAI.ca Team">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://www.electronicai.ca/">
+<meta name="description"
+    content="Explore the convergence of electronics and artificial intelligence at ElectronicAI.ca. Discover articles, projects, and insights into AI hardware, embedded AI, IoT, machine learning, and robotics.">
+<meta name="keywords"
+    content="electronics, artificial intelligence, AI, embedded AI, IoT, machine learning, deep learning, robotics, AI hardware, microcontrollers, sensors, actuators, neural networks, computer vision, natural language processing, smart devices, automation, electronic circuits, AI applications, Canada AI, electronicai.ca">
+<meta name="author" content="ElectronicAI.ca Team">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://www.electronicai.ca/">
 {% endblock %}
 
 {% block header %} ElectronicAI.ca {% endblock %}
 
 {% block description %}
-    Bridging the Gap Between Electronics and Artificial Intelligence
+Bridging the Gap Between Electronics and Artificial Intelligence
 {% endblock %}
 
 {% block content %}
-    <main class="flex-grow-1 container">
-        <div class="row">
-            <div class="col-md-7 py-4">
-                <section class="card panel shadow w-100 mb-4">
-                    <div class="card-header bg-primary text-white">
-                        <h6 class="mb-0">Chat</h6>
-                    </div>
+<main class="flex-grow-1 container">
+    <div class="row">
+        <div class="col-md-7 py-4">
+            <section class="card panel shadow w-100 mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0">Chat</h6>
+                </div>
 
-                    <div class="card-body d-flex flex-column" style="min-height: 400px;">
-                        <div class="flex-grow-1 overflow-auto mb-3" id="chat-history" style="max-height: 350px;">
-                            <div class="alert alert-info mb-2 ai-message">
-                                Hello! I'm your ElectronicAI assistant. Ask me anything about the exciting world
-                                where electronics meets artificial intelligence.
-                                <button class="btn btn-sm btn-outline-secondary float-end save-ai-response-btn"
-                                    data-bs-toggle="modal" data-bs-target="#saveResponseModal"
-                                    style="display:none;">Save</button>
-                            </div>
-                        </div>
-                        <div class="align-items-center mb-3" id="typing-indicator" style="display: none;">
-                            <span class="spinner-border spinner-border-sm text-primary me-2" role="status"></span>
-                            <span>AI is typing...</span>
-                        </div>
-                        <div class="input-group">
-                            <input type="text" id="user-input" class="form-control" placeholder="Type your question here..."
-                                autocomplete="off">
-                            <button id="send-button" class="btn btn-primary">Send</button>
+                <div class="card-body d-flex flex-column" style="min-height: 400px;">
+                    <div class="flex-grow-1 overflow-auto mb-3" id="chat-history" style="max-height: 350px;">
+                        <div class="alert alert-info mb-2 ai-message">
+                            Hello! I'm your ElectronicAI assistant. Ask me anything about the exciting world
+                            where electronics meets artificial intelligence.
+                            <button class="btn btn-sm btn-outline-secondary float-end save-ai-response-btn"
+                                data-bs-toggle="modal" data-bs-target="#saveResponseModal"
+                                style="display:none;">Save</button>
                         </div>
                     </div>
-                </section>
-            </div>
-
-            <div class="col-md-5">
-                <section class="card panel shadow w-100 h-50">
-                    <div class="card-header bg-primary text-white">
-                        <h6 class="mb-0">Browse Components</h6>
+                    <div class="align-items-center mb-3" id="typing-indicator" style="display: none;">
+                        <span class="spinner-border spinner-border-sm text-primary me-2" role="status"></span>
+                        <span>AI is typing...</span>
                     </div>
-                    <div class="card-body">
-                        <input type="text" id="componentSearch" class="form-control mb-3"
-                            placeholder="Search components...">
-                        <div id="componentList" class="row" style="max-height: 100px; overflow-y: auto;"></div>
+                    <div class="input-group">
+                        <input type="text" id="user-input" class="form-control" placeholder="Type your question here..."
+                            autocomplete="off">
+                        <button id="send-button" class="btn btn-primary">Send</button>
                     </div>
-                </section>
-
-                <section class="w-100">
-                    <div id="cesiumContainer" style="width: 100%; height: 300px; border-radius: 18px; overflow: hidden;">
-                    </div>
-                </section>
-            </div>
+                </div>
+            </section>
         </div>
-    </main>
 
-    <div class="modal fade" id="saveResponseModal" tabindex="-1" aria-labelledby="saveResponseModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="saveResponseModalLabel">Save AI Response</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
+        <div class="col-md-5">
+            <section class="card panel shadow w-100 h-50">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0">Browse Components</h6>
+                </div>
+                <div class="card-body">
+                    <input type="text" id="componentSearch" class="form-control mb-3"
+                        placeholder="Search components...">
+                    <div id="componentList" class="row" style="max-height: 100px; overflow-y: auto;"></div>
+                </div>
+            </section>
+
+            <section class="w-100">
+                <div id="cesiumContainer" style="width: 100%; height: 300px; border-radius: 18px; overflow: hidden;">
+                </div>
+            </section>
+        </div>
+    </div>
+</main>
+
+<div class="modal fade" id="saveResponseModal" tabindex="-1" aria-labelledby="saveResponseModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="saveResponseModalLabel">Save AI Response</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="responseTitle" class="form-label">Title for this response:</label>
+                    <input type="text" class="form-control" id="responseTitle"
+                        placeholder="e.g., Explanation of Embedded AI" required>
                 </div>
 
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="responseTitle" class="form-label">Title for this response:</label>
-                        <input type="text" class="form-control" id="responseTitle"
-                            placeholder="e.g., Explanation of Embedded AI" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="responseContent" class="form-label">Content (editable):</label>
-                        <div id="responseContent" class="form-control" contenteditable="true"
-                            style="min-height: 150px; overflow-y: auto;"></div>
-                    </div>
+                <div class="mb-3">
+                    <label for="responseContent" class="form-label">Content (editable):</label>
+                    <div id="responseContent" class="form-control" contenteditable="true"
+                        style="min-height: 150px; overflow-y: auto;"></div>
                 </div>
+            </div>
 
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="confirmSaveResponseBtn">Save Response</button>
-                </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="confirmSaveResponseBtn">Save Response</button>
             </div>
         </div>
     </div>
+</div>
 
 {% endblock %}
 
 {% block scripts %}
 
-    <script>
-        const chatHistory = document.getElementById('chat-history');
-        const userInput = document.getElementById('user-input');
-        const sendButton = document.getElementById('send-button');
-        const typingIndicator = document.getElementById('typing-indicator');
+<script>
+    const chatHistory = document.getElementById('chat-history');
+    const userInput = document.getElementById('user-input');
+    const sendButton = document.getElementById('send-button');
+    const typingIndicator = document.getElementById('typing-indicator');
 
-        function showTypingIndicator(show) {
-            typingIndicator.style.display = show ? 'flex' : 'none';
-            if (show) {
-                chatHistory.scrollTop = chatHistory.scrollHeight;
-            }
-        }
-
-        function addMessage(message, sender) {
-            const messageDiv = document.createElement('div');
-            if (sender === 'user') {
-                messageDiv.className = 'alert alert-primary align-self-end user-message mb-2';
-                messageDiv.textContent = message;
-            } else {
-                messageDiv.className = 'alert alert-info align-self-start ai-message mb-2';
-                const span = document.createElement('span');
-                span.className = 'markdown-content';
-                span.innerHTML = marked.parse(message);
-                messageDiv.appendChild(span);
-
-                const saveButton = document.createElement('button');
-                saveButton.className = 'btn btn-sm btn-outline-secondary float-end save-ai-response-btn';
-                saveButton.textContent = 'Save';
-                saveButton.setAttribute('data-bs-toggle', 'modal');
-                saveButton.setAttribute('data-bs-target', '#saveResponseModal');
-                saveButton.onclick = function () {
-                    const modalResponseContent = document.getElementById('responseContent');
-                    modalResponseContent.innerHTML = span.innerHTML;
-                    document.getElementById('responseTitle').value = '';
-                };
-                messageDiv.appendChild(saveButton);
-            }
-            chatHistory.appendChild(messageDiv);
+    function showTypingIndicator(show) {
+        typingIndicator.style.display = show ? 'flex' : 'none';
+        if (show) {
             chatHistory.scrollTop = chatHistory.scrollHeight;
         }
+    }
 
-        const confirmSaveResponseBtn = document.getElementById('confirmSaveResponseBtn');
-        confirmSaveResponseBtn.addEventListener('click', async () => {
-            const title = document.getElementById('responseTitle').value.trim();
-            const content = document.getElementById('responseContent').innerHTML.trim();
+    function addMessage(message, sender) {
+        const messageDiv = document.createElement('div');
+        if (sender === 'user') {
+            messageDiv.className = 'alert alert-primary align-self-end user-message mb-2';
+            messageDiv.textContent = message;
+        } else {
+            messageDiv.className = 'alert alert-info align-self-start ai-message mb-2';
+            const span = document.createElement('span');
+            span.className = 'markdown-content';
+            span.innerHTML = marked.parse(message);
+            messageDiv.appendChild(span);
 
-            if (!title) {
-                alert('Please provide a title for your response.');
-                return;
+            const saveButton = document.createElement('button');
+            saveButton.className = 'btn btn-sm btn-outline-secondary float-end save-ai-response-btn';
+            saveButton.textContent = 'Save';
+            saveButton.setAttribute('data-bs-toggle', 'modal');
+            saveButton.setAttribute('data-bs-target', '#saveResponseModal');
+            saveButton.onclick = function () {
+                const modalResponseContent = document.getElementById('responseContent');
+                modalResponseContent.innerHTML = span.innerHTML;
+                document.getElementById('responseTitle').value = '';
+            };
+            messageDiv.appendChild(saveButton);
+        }
+        chatHistory.appendChild(messageDiv);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    const confirmSaveResponseBtn = document.getElementById('confirmSaveResponseBtn');
+    confirmSaveResponseBtn.addEventListener('click', async () => {
+        const title = document.getElementById('responseTitle').value.trim();
+        const content = document.getElementById('responseContent').innerHTML.trim();
+
+        if (!title) {
+            alert('Please provide a title for your response.');
+            return;
+        }
+        if (!content) {
+            alert('Content cannot be empty.');
+            return;
+        }
+
+        try {
+            const response = await fetch('/save_response', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ title: title, content: content })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-            if (!content) {
-                alert('Content cannot be empty.');
-                return;
+
+            const result = await response.json();
+            alert(result.message);
+            const saveResponseModal = bootstrap.Modal.getInstance(document.getElementById('saveResponseModal'));
+            saveResponseModal.hide();
+        } catch (error) {
+            console.error('Error saving response:', error);
+            alert('Failed to save response. Please try again.');
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        showTypingIndicator(false);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    });
+
+    async function sendMessage() {
+        const message = userInput.value.trim();
+        if (message === '') {
+            return;
+        }
+        addMessage(message, 'user');
+        userInput.value = '';
+        showTypingIndicator(true);
+
+        try {
+            const response = await fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message: message })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            try {
-                const response = await fetch('/save_response', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ title: title, content: content })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const result = await response.json();
-                alert(result.message);
-                const saveResponseModal = bootstrap.Modal.getInstance(document.getElementById('saveResponseModal'));
-                saveResponseModal.hide();
-            } catch (error) {
-                console.error('Error saving response:', error);
-                alert('Failed to save response. Please try again.');
-            }
-        });
-
-        document.addEventListener('DOMContentLoaded', function () {
+            const data = await response.json();
             showTypingIndicator(false);
-            chatHistory.scrollTop = chatHistory.scrollHeight;
-        });
+            addMessage(data.response, 'ai');
+        } catch (error) {
+            console.error('Error sending message:', error);
+            showTypingIndicator(false);
+            addMessage("Oops! Something went wrong. Please try again.", 'ai');
+        }
+    }
 
-        async function sendMessage() {
-            const message = userInput.value.trim();
-            if (message === '') {
-                return;
-            }
-            addMessage(message, 'user');
-            userInput.value = '';
-            showTypingIndicator(true);
+    sendButton.addEventListener('click', sendMessage);
 
-            try {
-                const response = await fetch('/chat', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ message: message })
-                });
+    userInput.addEventListener('keypress', function (event) {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
+    });
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+    async function fetchComponentInfo(query) {
+        const res = await fetch(`/component_info?q=${encodeURIComponent(query)}`);
+        if (!res.ok) return null;
+        return await res.json();
+    }
 
-                const data = await response.json();
-                showTypingIndicator(false);
-                addMessage(data.response, 'ai');
-            } catch (error) {
-                console.error('Error sending message:', error);
-                showTypingIndicator(false);
-                addMessage("Oops! Something went wrong. Please try again.", 'ai');
-            }
+    async function renderComponents(filter = "") {
+        const list = document.getElementById('componentList');
+        list.innerHTML = "<p class='text-muted'>Searching...</p>";
+
+        const compInfo = await fetchComponentInfo(filter);
+        if (!compInfo || compInfo.error) {
+            list.innerHTML = "<p class='text-muted'>No component found.</p>";
+            return;
         }
 
-        sendButton.addEventListener('click', sendMessage);
-
-        userInput.addEventListener('keypress', function (event) {
-            if (event.key === 'Enter') {
-                sendMessage();
-            }
-        });
-
-        async function fetchComponentInfo(query) {
-            const res = await fetch(`/component_info?q=${encodeURIComponent(query)}`);
-            if (!res.ok) return null;
-            return await res.json();
-        }
-
-        async function renderComponents(filter = "") {
-            const list = document.getElementById('componentList');
-            list.innerHTML = "<p class='text-muted'>Searching...</p>";
-
-            const compInfo = await fetchComponentInfo(filter);
-            if (!compInfo || compInfo.error) {
-                list.innerHTML = "<p class='text-muted'>No component found.</p>";
-                return;
-            }
-
-            list.innerHTML = `
+        list.innerHTML = `
                 <div class="col-12">
                     <div class="card h-100 shadow-sm">
                         <img src="${compInfo.image}" class="card-img-top p-3" style="height:150px; object-fit:contain;" alt="${compInfo.name}">
@@ -254,38 +254,80 @@
                             </div>
                     </div>
                     </div>`;
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.getElementById("componentSearch");
+        if (searchInput) {
+            searchInput.addEventListener("input", (e) => {
+                renderComponents(e.target.value);
+            });
+        }
+    });
+
+    Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlNmQzM2IzYy1iNmZmLTQzOTAtODI5NC00MzE2MzY1MTdmOGQiLCJpZCI6MjQxODYyLCJpYXQiOjE3MjY0NTk1MjJ9.XhN4UNgKITt-KoENllwyeEe5CCfcr5QZ1L90ToHUt14";
+
+    const viewer = new Cesium.Viewer("cesiumContainer", {
+        terrainProvider: new Cesium.EllipsoidTerrainProvider(),
+        imageryProvider: false,
+        baseLayerPicker: false,
+        geocoder: false,
+        homeButton: false,
+        sceneModePicker: false,
+        navigationHelpButton: false,
+        fullscreenButton: false,
+        animation: false,
+        timeline: false,
+        infoBox: false,
+        selectionIndicator: false,
+        shouldAnimate: true,
+        skyBox: false,
+        skyAtmosphere: false,
+        scene3DOnly: true,
+        creditContainer: document.createElement("div")
+    });
+
+    viewer.scene.backgroundColor = Cesium.Color.BLACK;
+    viewer.imageryLayers.removeAll();
+    viewer.scene.globe.show = false;
+
+    (async function () {
+        let position;
+        let entity;
+
+        try {
+            const resource = await Cesium.IonResource.fromAssetId(3537747);
+
+            position = Cesium.Cartesian3.fromDegrees(0, 0, 100);
+
+            entity = viewer.entities.add({
+                name: "Arduino Model",
+                position: position,
+                model: {
+                    uri: resource,
+                    scale: 10.0,
+                    minimumPixelSize: 128,
+                    silhouetteColor: Cesium.Color.BLACK,
+                    silhouetteSize: 1,
+                    runAnimations: false
+                }
+            });
+
+            viewer.trackedEntity = entity;
+        } catch (error) {
+            console.error("Failed to load model:", error);
         }
 
-        document.addEventListener("DOMContentLoaded", function () {
-            const searchInput = document.getElementById("componentSearch");
-            if (searchInput) {
-                searchInput.addEventListener("input", (e) => {
-                    renderComponents(e.target.value);
-                });
-            }
-        });
+        let heading = 0;
+        viewer.scene.preRender.addEventListener(function (scene, time) {
+            if (!entity || !position) return;
 
-        Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlNmQzM2IzYy1iNmZmLTQzOTAtODI5NC00MzE2MzY1MTdmOGQiLCJpZCI6MjQxODYyLCJpYXQiOjE3MjY0NTk1MjJ9.XhN4UNgKITt-KoENllwyeEe5CCfcr5QZ1L90ToHUt14";
-        const viewer = new Cesium.Viewer('cesiumContainer', {
-            timeline: false,
-            animation: false,
-            baseLayerPicker: false,
-            geocoder: false,
-            homeButton: false,
-            sceneModePicker: false,
-            navigationHelpButton: false,
-            infoBox: false,
-            selectionIndicator: false,
-            fullscreenButton: false,
-            shouldAnimate: true,
-            skyBox: false,
-            skyAtmosphere: false,
-            scene3DOnly: true
-        });
+            heading += Cesium.Math.toRadians(0.2);
+            const hpr = new Cesium.HeadingPitchRoll(heading, 0, 0);
+            const orientation = Cesium.Transforms.headingPitchRollQuaternion(position, hpr);
 
-        Cesium.IonResource.fromAssetId(3525673).then(function (resource) {
-            viewer.scene.primitives.add(new Cesium.Cesium3DTileset({ url: resource }));
-            viewer.zoomTo(viewer.scene.primitives);
+            entity.orientation = orientation;
         });
-    </script>
+    })();
+</script>
 {% endblock %}
