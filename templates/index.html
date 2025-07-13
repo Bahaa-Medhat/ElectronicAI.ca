@@ -68,7 +68,9 @@ Bridging the Gap Between Electronics and Artificial Intelligence
         </div>
     </div>
 </main>
+{% endblock %}
 
+{% block modals %}
 <div class="modal fade" id="saveResponseModal" tabindex="-1" aria-labelledby="saveResponseModalLabel"
     aria-hidden="true">
     <div class="modal-dialog">
@@ -78,21 +80,18 @@ Bridging the Gap Between Electronics and Artificial Intelligence
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                     aria-label="Close"></button>
             </div>
-
             <div class="modal-body">
                 <div class="mb-3">
                     <label for="responseTitle" class="form-label">Title for this response:</label>
                     <input type="text" class="form-control" id="responseTitle"
                         placeholder="e.g., Explanation of Embedded AI" required>
                 </div>
-
                 <div class="mb-3">
                     <label for="responseContent" class="form-label">Content (editable):</label>
                     <div id="responseContent" class="form-control" contenteditable="true"
                         style="min-height: 150px; overflow-y: auto;"></div>
                 </div>
             </div>
-
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary" id="confirmSaveResponseBtn">Save Response</button>
@@ -100,7 +99,6 @@ Bridging the Gap Between Electronics and Artificial Intelligence
         </div>
     </div>
 </div>
-
 {% endblock %}
 
 {% block scripts %}
@@ -175,7 +173,7 @@ Bridging the Gap Between Electronics and Artificial Intelligence
 
             const result = await response.json();
             alert(result.message);
-            const saveResponseModal = bootstrap.Modal.getInstance(document.getElementById('saveResponseModal'));
+            const saveResponseModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('saveResponseModal'));
             saveResponseModal.hide();
         } catch (error) {
             console.error('Error saving response:', error);
