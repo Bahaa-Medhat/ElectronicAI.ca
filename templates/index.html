@@ -108,6 +108,7 @@ Bridging the Gap Between Electronics and Artificial Intelligence
     const userInput = document.getElementById('user-input');
     const sendButton = document.getElementById('send-button');
     const typingIndicator = document.getElementById('typing-indicator');
+    let currentSessionId = null;
 
     function showTypingIndicator(show) {
         typingIndicator.style.display = show ? 'flex' : 'none';
@@ -142,6 +143,45 @@ Bridging the Gap Between Electronics and Artificial Intelligence
         }
         chatHistory.appendChild(messageDiv);
         chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    async function sendMessage() {
+        const message = userInput.value.trim();
+        if (message === '') {
+            return;
+        }
+        addMessage(message, 'user');
+        userInput.value = '';
+        showTypingIndicator(true);
+
+        try {
+            const response = await fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: message,
+                    session_id: currentSessionId // ✅ Important: reuse session_id
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            showTypingIndicator(false);
+            addMessage(data.response, 'ai');
+
+            if (!currentSessionId && data.session_id) {
+                currentSessionId = data.session_id;
+            }
+        } catch (error) {
+            console.error('Error sending message:', error);
+            showTypingIndicator(false);
+            addMessage("Oops! Something went wrong. Please try again.", 'ai');
+        }
     }
 
     const confirmSaveResponseBtn = document.getElementById('confirmSaveResponseBtn');
@@ -185,38 +225,6 @@ Bridging the Gap Between Electronics and Artificial Intelligence
         showTypingIndicator(false);
         chatHistory.scrollTop = chatHistory.scrollHeight;
     });
-
-    async function sendMessage() {
-        const message = userInput.value.trim();
-        if (message === '') {
-            return;
-        }
-        addMessage(message, 'user');
-        userInput.value = '';
-        showTypingIndicator(true);
-
-        try {
-            const response = await fetch('/chat', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ message: message })
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            showTypingIndicator(false);
-            addMessage(data.response, 'ai');
-        } catch (error) {
-            console.error('Error sending message:', error);
-            showTypingIndicator(false);
-            addMessage("Oops! Something went wrong. Please try again.", 'ai');
-        }
-    }
 
     sendButton.addEventListener('click', sendMessage);
 

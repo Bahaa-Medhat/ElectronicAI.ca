@@ -34,7 +34,15 @@ class ChatMessage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     role = db.Column(db.String(10))
     message = db.Column(db.Text)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    session_id = db.Column(db.Integer, db.ForeignKey('chat_session.id'), nullable=False)
+
+class ChatSession(db.Model):
+    __tablename__ = 'chat_session'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(255))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    messages = db.relationship('ChatMessage', backref='session', lazy=True)
 
 class SavedResponse(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -92,17 +100,68 @@ def index():
 @app.route('/history')
 @login_required
 def history():
-    messages = ChatMessage.query.filter_by(user_id=current_user.id).all()
-    return render_template('history.html', messages=messages)
+    session_id = request.args.get('session_id', type=int)
+    sessions = ChatSession.query.filter_by(user_id=current_user.id).order_by(ChatSession.id.desc()).all()
+    session_list = []
+    for s in sessions:
+        messages = ChatMessage.query.filter_by(session_id=s.id).order_by(ChatMessage.id).all()
+        session_list.append({
+            'id': s.id,
+            'title': s.title or f"Chat {s.id}",
+            'date': s.created_at.strftime('%d-%m-%Y %H:%M'),
+            'messages': messages
+        })
+    selected_session_id = session_id or (session_list[0]['id'] if session_list else None)
+    selected_session = next((sess for sess in session_list if sess['id'] == selected_session_id), None)
+
+    return render_template(
+        'history.html',
+        sessions=session_list,
+        selected_session=selected_session,
+        selected_session_id=selected_session_id
+    )
 
 @app.route('/clear_history', methods=['POST'])
 @login_required
 def clear_history():
-    ChatMessage.query.filter_by(user_id=current_user.id).delete()
-    db.session.commit()
-    flash('Chat history cleared.', 'success')
+    try:
+        user_sessions = ChatSession.query.filter_by(user_id=current_user.id).all()
+        session_ids = [s.id for s in user_sessions]
+
+        ChatMessage.query.filter(ChatMessage.session_id.in_(session_ids)).delete(synchronize_session=False)
+
+        ChatSession.query.filter_by(user_id=current_user.id).delete()
+
+        db.session.commit()
+        flash('Chat history cleared.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Failed to clear chat history: {str(e)}", 'danger')
+
     return redirect(url_for('history'))
 
+@app.route('/update_chat_title/<int:session_id>', methods=['POST'])
+@login_required
+def update_chat_title(session_id):
+    data = request.get_json()
+    new_title = data.get('title', '').strip()
+    session = ChatSession.query.filter_by(id=session_id, user_id=current_user.id).first_or_404()
+    if new_title:
+        session.title = new_title
+        db.session.commit()
+        return jsonify({'success': True, 'title': new_title})
+    return jsonify({'success': False, 'error': 'Title cannot be empty'}), 400
+
+@app.route('/delete_chat/<int:session_id>', methods=['POST'])
+@login_required
+def delete_chat(session_id):
+    session = ChatSession.query.filter_by(id=session_id, user_id=current_user.id).first_or_404()
+    ChatMessage.query.filter_by(session_id=session_id).delete()
+    db.session.delete(session)
+    db.session.commit()
+    return jsonify({'success': True})
+
+#--- Calculator Route ---#
 @app.route('/calculator')
 @login_required
 def calculator():
@@ -113,15 +172,25 @@ def calculator():
 @login_required
 async def chat():
     user_message = request.json.get('message')
-    print(f"User message received: {user_message}")
+    session_id = request.json.get('session_id')  # Pass this from frontend
 
-    user_entry = ChatMessage(role='user', message=user_message, user_id=current_user.id)
+    # If no session_id, create a new session
+    if not session_id:
+        new_session = ChatSession(user_id=current_user.id, title="New Chat")
+        db.session.add(new_session)
+        db.session.commit()
+        session_id = new_session.id
+
+    user_entry = ChatMessage(role='user', message=user_message, session_id=session_id)
     db.session.add(user_entry)
+    db.session.commit()
 
     chat_history = []
-    chat_history.append({ "role": "user", "parts": [{ "text": user_message }] })
-    payload = { "contents": chat_history }
+    messages = ChatMessage.query.filter_by(session_id=session_id).order_by(ChatMessage.id).all()
+    for msg in messages:
+        chat_history.append({"role": msg.role, "parts": [{"text": msg.message}]})
 
+    payload = {"contents": chat_history}
     api_key = os.getenv("GEMINI_API_KEY")
     api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}"
 
@@ -131,37 +200,23 @@ async def chat():
         import httpx
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.post(api_url, json=payload, headers={'Content-Type': 'application/json'})
-
-            print(f"Gemini API Response Status: {response.status_code}")
-            print(f"Gemini API Response Body: {response.text}")
-
             response.raise_for_status()
-
             result = response.json()
-
             if result.get('candidates') and len(result['candidates']) > 0 and \
                result['candidates'][0].get('content') and \
                result['candidates'][0]['content'].get('parts') and \
                len(result['candidates'][0]['content']['parts']) > 0:
                 ai_response = result['candidates'][0]['content']['parts'][0]['text']
             else:
-                print("Unexpected response structure from Gemini API. Result:", result)
                 ai_response = "I received an unexpected response structure from the AI. Please try rephrasing your question."
-
-    except httpx.RequestError as e:
-        print(f"Request to Gemini API failed due to network, DNS, or timeout issue: {e}")
-        ai_response = "Failed to connect to the AI service. Please check your network connection, ensure 'httpx' is installed, or try again later."
-    except httpx.HTTPStatusError as e:
-        print(f"Gemini API returned an HTTP error: Status {e.response.status_code} - Response: {e.response.text}")
-        ai_response = f"The AI service returned an error (Status: {e.response.status_code}). Please try again with a different query. Details: {e.response.text[:100]}..."
     except Exception as e:
-        print(f"An unexpected error occurred during AI response generation: {e}")
         ai_response = "An internal error occurred while processing your request."
 
-    ai_entry = ChatMessage(role='ai', message=ai_response, user_id=current_user.id)
+    # Save AI response
+    ai_entry = ChatMessage(role='ai', message=ai_response, session_id=session_id)
     db.session.add(ai_entry)
     db.session.commit()
-    return jsonify({'response': ai_response})
+    return jsonify({'response': ai_response, 'session_id': session_id})
 
 #--- Browse Component Route ---#
 def get_nexar_token():

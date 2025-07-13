@@ -5,31 +5,80 @@
 {% block description %}Your past conversations with ElectronicAI{% endblock %}
 
 {% block content %}
-<main class="flex-grow-1 d-flex justify-content-center align-items-start">
-    <section class="card shadow w-100 p-4"
-        style="max-width: 700px; height: 60vh; display: flex; flex-direction: column;">
-        <div class="d-flex justify-content-center align-items-center mb-4 gap-2">
-            <form method="POST" action="{{ url_for('clear_history') }}" class="mb-0">
-                <button type="submit" class="btn btn-danger">Clear History</button>
-            </form>
-        </div>
-        {% if messages %}
-        <div class="list-group flex-grow-1 overflow-auto mb-3" style="min-height: 0;">
-            {% for message in messages %}
-            <div class="list-group-item history-message {{ message.role }}">
-                <div class="history-message-body" data-role="{{ message.role }}">
-                    <strong class="text-capitalize">{{ message.role }}:</strong>
-                    <span class="markdown-content">{{ message.message }}</span>
-                </div>
-                <div class="message-meta text-muted small">Message ID: {{ message.id }}</div>
+<main class="d-flex flex-grow-1" style="height: 70vh; min-height: 400px;">
+    <!-- Sidebar -->
+    <nav class="bg-light border-end" style="width: 260px; min-width: 200px; max-width: 320px; overflow-y: auto;">
+        <div class="d-flex flex-column h-100">
+            <div class="p-3 border-bottom">
+                <span class="fw-bold fs-5">Chats</span>
+                <form method="POST" action="{{ url_for('clear_history') }}" class="d-inline float-end">
+                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Clear all history">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </form>
             </div>
-            {% endfor %}
+            <ul class="list-group list-group-flush flex-grow-1">
+                {% if sessions %}
+                {% for session in sessions %}
+                <a href="{{ url_for('history', session_id=session.id) }}"
+                    class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {% if session.id == selected_session_id %}active{% endif %}">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-chat-left-text me-2"></i>
+                        <span>{{ session.title | e if session.title else "Chat " ~ session.id }}</span>
+                    </div>
+                    <button class="btn btn-sm btn-link text-danger p-0 ms-2 delete-chat-btn" title="Delete chat"
+                        data-session-id="{{ session.id }}">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </a>
+                {% endfor %}
+                {% else %}
+                <li class="list-group-item text-muted text-center">No chats yet.</li>
+                {% endif %}
+            </ul>
         </div>
-        {% else %}
-        <p
-            class="no-messages text-center text-muted flex-grow-1 d-flex align-items-center justify-content-center mb-0">
-            No chat history found.</p>
-        {% endif %}
+    </nav>
+
+    <!-- Main chat area -->
+    <section class="flex-grow-1 d-flex flex-column" style="min-width: 0;">
+        <div class="card shadow-sm h-100 d-flex flex-column">
+            <div class="card-header border-bottom">
+                <span class="fw-semibold fs-5">
+                    {% if selected_session %}
+                    <span id="chat-title" contenteditable="true" class="editable-title"
+                        data-session-id="{{ selected_session.id }}"
+                        style="outline: none; border-bottom: 1px dashed #888; cursor: text;">
+                        {{ selected_session.title or "Chat " ~ selected_session.id }}
+                    </span>
+                    <i class="bi bi-pencil ms-2 text-secondary" style="cursor:pointer;"></i>
+                    {% else %}
+                    Select a chat
+                    {% endif %}
+                </span>
+            </div>
+
+            <div class="card-body overflow-auto flex-grow-1 px-4 py-3">
+                {% if selected_session and selected_session.messages %}
+                {% for message in selected_session.messages %}
+                <div
+                    class="mb-3 d-flex {% if message.role == 'user' %}justify-content-end{% else %}justify-content-start{% endif %}">
+                    <div class="p-3 rounded-3 shadow-sm {% if message.role == 'user' %}user-bg{% else %}assistant-bg{% endif %}"
+                        style="max-width: 70%;">
+                        <div class="small mb-1" style="color: #fff;">
+                            <strong class="text-capitalize">{{ message.role }}</strong>
+                            <span class="ms-2">#{{ message.id }}</span>
+                        </div>
+                        <div class="markdown-content">{{ message.message }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% elif selected_session %}
+                <p class="text-muted text-center my-5">No messages in this chat.</p>
+                {% else %}
+                <p class="text-muted text-center my-5">Select a chat from the left to view its messages.</p>
+                {% endif %}
+            </div>
+        </div>
     </section>
 </main>
 {% endblock %}
@@ -39,6 +88,71 @@
     document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.markdown-content').forEach(function (el) {
             el.innerHTML = marked.parse(el.textContent);
+        });
+
+        const titleElem = document.getElementById('chat-title');
+        if (titleElem) {
+            let oldTitle = titleElem.textContent.trim();
+
+            function saveTitle() {
+                const newTitle = titleElem.textContent.trim();
+                const sessionId = titleElem.dataset.sessionId;
+                if (newTitle && newTitle !== oldTitle) {
+                    fetch('/update_chat_title/' + sessionId, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token() if csrf_token is defined else "" }}'
+                        },
+                        body: JSON.stringify({ title: newTitle })
+                    }).then(res => {
+                        if (res.ok) {
+                            oldTitle = newTitle;
+                            // Update sidebar title
+                            document.querySelectorAll('.list-group-item.active span').forEach(span => {
+                                span.textContent = newTitle;
+                            });
+                        } else {
+                            alert('Failed to update title');
+                            titleElem.textContent = oldTitle;
+                        }
+                    });
+                }
+            }
+
+            titleElem.addEventListener('blur', saveTitle);
+            titleElem.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    titleElem.blur();
+                }
+            });
+        }
+
+        document.querySelectorAll('.delete-chat-btn').forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation(); // Prevent navigation
+
+                if (!confirm("Are you sure you want to delete this chat?")) return;
+
+                const sessionId = this.dataset.sessionId;
+                fetch('/delete_chat/' + sessionId, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token() if csrf_token is defined else "" }}'
+                    }
+                })
+                .then(res => {
+                    if (res.ok) {
+                        // Reload the page or remove the deleted item
+                        window.location.href = "{{ url_for('history') }}";
+                    } else {
+                        alert('Failed to delete chat');
+                    }
+                });
+            });
         });
     });
 </script>
